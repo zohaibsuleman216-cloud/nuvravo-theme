@@ -1,0 +1,28 @@
+{
+  "type": "footer",
+  "name": "t:names.footer",
+  "sections": {
+    "nv_footer": {
+      "type": "nv-footer",
+      "settings": {
+        "tagline": "Smart car accessories, selected for drivers who care. Drive a smarter you.",
+        "email": "support@nuvravo.com",
+        "hours": "Replies within 24–48 hours",
+        "menu_1": "nv-footer-shop",
+        "menu_title_1": "Shop",
+        "menu_2": "nv-footer-help",
+        "menu_title_2": "Help",
+        "menu_3": "nv-footer-company",
+        "menu_title_3": "Company",
+        "news_heading": "Join the Nuvravo garage",
+        "news_text": "New arrivals, care tips and member-only offers. No spam.",
+        "news_fine": "By subscribing you agree to receive marketing emails. Unsubscribe at any time."
+      },
+      "blocks": {},
+      "block_order": []
+    }
+  },
+  "order": [
+    "nv_footer"
+  ]
+}

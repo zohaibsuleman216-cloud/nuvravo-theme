@@ -1,0 +1,156 @@
+{
+  "sections": {
+    "header": {
+      "type": "nv-cta",
+      "settings": {
+        "style": "header",
+        "eyebrow": "Help centre",
+        "heading": "",
+        "text": "<p>Everything you need to know about orders, delivery, returns and compatibility.</p>",
+        "button_label": "",
+        "button2_label": "Contact support",
+        "button2_link": "/pages/contact"
+      },
+      "blocks": {},
+      "block_order": []
+    },
+    "faq": {
+      "type": "nv-faq",
+      "settings": {
+        "eyebrow": "FAQ",
+        "heading": "Popular questions",
+        "text": "<p>Can't find your answer? Our team replies within 24–48 hours.</p>",
+        "button_label": "Contact support",
+        "button_link": "/pages/contact",
+        "open_first": true
+      },
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "How long does delivery take?",
+            "answer": "<p>Shipping is free on every order. Orders are processed within 1–3 business days and usually arrive within 10–15 business days; items from our US warehouse arrive within 3–5 business days to US addresses. Every parcel ships with tracking. See <a href=\"/pages/shipping-delivery\">Shipping &amp; Delivery</a> for details.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Which countries do you ship to?",
+            "answer": "<p>We ship to the United States, Canada, the United Kingdom, Israel and most EU countries. Shipping is free to every destination, and available countries are shown at checkout.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What is your return policy?",
+            "answer": "<p>You can return unused items in their original packaging within 30 days of delivery. Damaged, faulty or incorrect items are replaced or refunded at no cost. See <a href=\"/pages/returns-refunds\">Returns &amp; Refunds</a>.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Will an OBD2 scanner work with my car?",
+            "answer": "<p>OBD2 scanners work with vehicles that have an OBD2/EOBD port: most petrol cars sold in the US from 1996 and in the EU from 2001 (diesel from 2004). Some models list extra limits on their product page, for example petrol-only support. Not sure? Email us your make, model and year.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Is checkout secure?",
+            "answer": "<p>Yes. Checkout runs on Shopify's encrypted, PCI-compliant platform, and we never see or store your full card details.</p>"
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "Will the seat covers fit my car?",
+            "answer": "<p>Our seat covers are designed as universal fit for most sedans, SUVs and pickups. Check the dimensions on the product page, or email us your vehicle model and we will confirm before you order.</p>"
+          }
+        },
+        "q7": {
+          "type": "question",
+          "settings": {
+            "question": "How do I track my order?",
+            "answer": "<p>Your tracking link is emailed when your order ships. You can also sign in to your account or visit <a href=\"/pages/track-order\">Track Your Order</a>.</p>"
+          }
+        },
+        "q8": {
+          "type": "question",
+          "settings": {
+            "question": "How can I contact you?",
+            "answer": "<p>Email <a href=\"mailto:support@nuvravo.com\">support@nuvravo.com</a> or use our <a href=\"/pages/contact\">contact form</a>. We reply within 24–48 hours.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7",
+        "q8"
+      ]
+    },
+    "assurance": {
+      "type": "nv-assurance",
+      "settings": {
+        "aria_label": "Shopping with confidence"
+      },
+      "blocks": {
+        "a1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Free tracked shipping",
+            "text": "Free shipping on every order, dispatched in 1–3 business days with tracking.",
+            "link": "/pages/shipping-delivery",
+            "link_label": "Shipping info"
+          }
+        },
+        "a2": {
+          "type": "item",
+          "settings": {
+            "icon": "refresh",
+            "title": "30-day returns",
+            "text": "Changed your mind? Return unused items within 30 days.",
+            "link": "/pages/returns-refunds",
+            "link_label": "Returns policy"
+          }
+        },
+        "a3": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "title": "Secure checkout",
+            "text": "Encrypted payments with trusted providers.",
+            "link": "",
+            "link_label": ""
+          }
+        },
+        "a4": {
+          "type": "item",
+          "settings": {
+            "icon": "headset",
+            "title": "Real human support",
+            "text": "Questions? We reply within 24–48 hours.",
+            "link": "/pages/contact",
+            "link_label": "Contact us"
+          }
+        }
+      },
+      "block_order": [
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ]
+    }
+  },
+  "order": [
+    "header",
+    "faq",
+    "assurance"
+  ]
+}

@@ -1,0 +1,287 @@
+{% comment %}
+  Section contract.
+  Main collection page: dark banner (title, description, count), a category pill row, a sort
+  control and every product as a Nuvravo card, paginated in pages of up to 48.
+  @example
+  <!-- Used by templates/collection.json, including /collections/all. -->
+{% endcomment %}
+{%- capture nv_coll_title -%}{% render 'nv-collection-copy', collection: collection, field: 'title' %}{%- endcapture -%}
+{%- capture nv_coll_desc -%}{% render 'nv-collection-copy', collection: collection, field: 'description' %}{%- endcapture -%}
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign banner_image = collection.image
+-%}
+<div class="nv-coll">
+  <header class="nv-coll__banner">
+    {%- if banner_image -%}
+      <div class="nv-coll__bg" aria-hidden="true">
+        {{ banner_image | image_url: width: 1600 | image_tag: widths: '750, 1100, 1600', sizes: '100vw', loading: 'eager', fetchpriority: 'high', alt: '' }}
+      </div>
+    {%- endif -%}
+    <div class="nv-container nv-coll__banner-inner">
+      <nav class="nv-coll__crumbs" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ nv_coll_title }}</span>
+      </nav>
+      <h1 class="nv-coll__title">{{ nv_coll_title }}</h1>
+      {%- if nv_coll_desc != blank -%}
+        <div class="nv-coll__desc">{{ nv_coll_desc }}</div>
+      {%- endif -%}
+      <p class="nv-coll__count">
+        {{ collection.products_count }}
+        {% if collection.products_count == 1 %}product{% else %}products{% endif %}
+      </p>
+    </div>
+  </header>
+
+  <div class="nv-container nv-coll__body">
+    <nav class="nv-coll__pills" aria-label="Categories">
+      <a href="{{ routes.all_products_collection_url }}" {% if collection.handle == 'all' %}aria-current="page"{% endif %}>All products</a>
+      {%- if section.settings.menu != blank -%}
+        {%- for link in section.settings.menu.links -%}
+          <a href="{{ link.url }}" {% if link.active %}aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for c in collections -%}
+          {%- if c.handle == 'all' or c.handle == 'frontpage' or c.products_count == 0 -%}{%- continue -%}{%- endif -%}
+          <a href="{{ c.url }}" {% if c.handle == collection.handle %}aria-current="page"{% endif %}>{% render 'nv-collection-copy', collection: c, field: 'title' %}</a>
+        {%- endfor -%}
+      {%- endif -%}
+    </nav>
+
+    <div class="nv-coll__toolbar">
+      <p class="nv-coll__showing">Showing {{ collection.products_count }} {% if collection.products_count == 1 %}product{% else %}products{% endif %}</p>
+      <form class="nv-coll__sort" method="get">
+        <label for="NvSort-{{ section.id }}">Sort by</label>
+        <select id="NvSort-{{ section.id }}" name="sort_by" onchange="this.form.submit()">
+          {%- for option in collection.sort_options -%}
+            <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>{{ option.name | escape }}</option>
+          {%- endfor -%}
+        </select>
+        <noscript><button type="submit">Apply</button></noscript>
+      </form>
+    </div>
+
+    {%- paginate collection.products by 48 -%}
+      {%- if collection.products.size > 0 -%}
+        <ul class="nv-grid" role="list">
+          {%- for product in collection.products -%}
+            {%- if forloop.index <= 4 -%}{%- assign img_loading = 'eager' -%}{%- else -%}{%- assign img_loading = 'lazy' -%}{%- endif -%}
+            <li>{% render 'nv-product-card', product: product, loading: img_loading %}</li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <div class="nv-coll__empty">
+          <p>No products here yet.</p>
+          <a class="nv-btn nv-btn--primary" href="{{ routes.all_products_collection_url }}">Shop all products</a>
+        </div>
+      {%- endif -%}
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="nv-coll__pages" aria-label="Pagination">
+          {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}">Previous</a>{%- endif -%}
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}">{{ part.title }}</a>
+            {%- else -%}
+              <span {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if paginate.next -%}<a href="{{ paginate.next.url }}">Next</a>{%- endif -%}
+        </nav>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .nv-coll__banner {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(40px, 6vw, 80px);
+    color: var(--nv-white);
+    background: linear-gradient(160deg, var(--nv-steel) 0%, var(--nv-ink) 75%);
+  }
+
+  .nv-coll__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .nv-coll__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.35;
+  }
+
+  .nv-coll__banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(10 15 28 / 0.95) 0%, rgb(10 15 28 / 0.6) 60%, rgb(10 15 28 / 0.2) 100%);
+  }
+
+  .nv-coll__crumbs {
+    display: flex;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .nv-coll__crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .nv-coll__crumbs a:hover {
+    color: var(--nv-white);
+  }
+
+  .nv-coll__title {
+    margin: 14px 0 0;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(2.2rem, 1.4rem + 3vw, 3.8rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .nv-coll__desc {
+    max-width: 62ch;
+    margin-top: 14px;
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.75);
+  }
+
+  .nv-coll__desc p {
+    margin: 0;
+  }
+
+  .nv-coll__count {
+    display: inline-block;
+    margin: 18px 0 0;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgb(255 255 255 / 0.12);
+  }
+
+  .nv-coll__body {
+    padding-block: clamp(24px, 4vw, 48px) clamp(56px, 8vw, 96px);
+  }
+
+  .nv-coll__pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 20px;
+  }
+
+  .nv-coll__pills a {
+    flex: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--nv-line);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--nv-ink);
+    text-decoration: none;
+    background: var(--nv-white);
+    transition: background-color 0.3s var(--nv-ease), color 0.3s var(--nv-ease), border-color 0.3s var(--nv-ease);
+  }
+
+  .nv-coll__pills a:hover {
+    border-color: var(--nv-ink);
+  }
+
+  .nv-coll__pills a[aria-current='page'] {
+    color: var(--nv-white);
+    background: var(--nv-ink);
+    border-color: var(--nv-ink);
+  }
+
+  .nv-coll__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: var(--nv-surface);
+  }
+
+  .nv-coll__showing {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--nv-muted);
+  }
+
+  .nv-coll__sort {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .nv-coll__sort select {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid var(--nv-line);
+    background: var(--nv-white);
+    font-size: 0.9rem;
+  }
+
+  .nv-coll__empty {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    padding: 64px 0;
+    text-align: center;
+  }
+
+  .nv-coll__pages {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 40px;
+  }
+
+  .nv-coll__pages a,
+  .nv-coll__pages span {
+    min-width: 40px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--nv-line);
+    text-align: center;
+    text-decoration: none;
+    color: var(--nv-ink);
+  }
+
+  .nv-coll__pages [aria-current='page'] {
+    color: var(--nv-white);
+    background: var(--nv-ink);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo collection",
+  "tag": "section",
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "Category pills menu (blank lists all collections)" }
+  ]
+}
+{% endschema %}

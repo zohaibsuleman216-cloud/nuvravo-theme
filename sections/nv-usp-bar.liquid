@@ -1,0 +1,143 @@
+{% comment %}
+  Section contract.
+  A slim, continuously scrolling strip of store promises (icon + short text).
+  The list is rendered twice so the loop is seamless; the copy is hidden from assistive tech.
+  @example
+  <!-- Place under the hero or at the top of collection pages. -->
+{% endcomment %}
+<section class="nv-usp nv-usp--{{ section.settings.style }}" aria-label="{{ section.settings.aria_label | escape }}">
+  <div class="nv-usp__track" style="--nv-usp-speed: {{ section.settings.speed }}s">
+    {%- for i in (1..2) -%}
+      <ul class="nv-usp__list" role="list" {% if i == 2 %}aria-hidden="true"{% endif %}>
+        {%- for block in section.blocks -%}
+          <li class="nv-usp__item" {% if i == 1 %}{{ block.shopify_attributes }}{% endif %}>
+            {% render 'nv-icon', name: block.settings.icon, size: 20 %}
+            <span>{{ block.settings.text | escape }}</span>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .nv-usp {
+    overflow: hidden;
+    border-block: 1px solid var(--nv-line);
+    background: var(--nv-white);
+    color: var(--nv-ink);
+  }
+
+  .nv-usp--dark {
+    background: var(--nv-ink);
+    color: rgb(255 255 255 / 0.86);
+    border-color: rgb(255 255 255 / 0.08);
+  }
+
+  .nv-usp__track {
+    display: flex;
+    width: max-content;
+    animation: nv-usp-scroll var(--nv-usp-speed, 40s) linear infinite;
+  }
+
+  .nv-usp:hover .nv-usp__track {
+    animation-play-state: paused;
+  }
+
+  .nv-usp__list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nv-usp__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 36px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .nv-usp__item .nv-icon {
+    color: var(--nv-blue);
+  }
+
+  .nv-usp--dark .nv-usp__item .nv-icon {
+    color: var(--nv-blue-bright);
+  }
+
+  .nv-usp__item::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-inline-start: 36px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.25;
+  }
+
+  @keyframes nv-usp-scroll {
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-usp__track {
+      animation: none;
+      width: auto;
+      overflow-x: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo promise strip",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "default": "light",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "dark", "label": "Dark" }
+      ]
+    },
+    { "type": "range", "id": "speed", "label": "Loop duration (seconds)", "min": 15, "max": 80, "step": 5, "default": 40 },
+    { "type": "text", "id": "aria_label", "label": "Accessible label", "default": "Store promises" }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Promise",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "check",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "lock", "label": "Lock" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "headset", "label": "Support" },
+            { "value": "globe", "label": "Globe" },
+            { "value": "refresh", "label": "Returns" },
+            { "value": "star", "label": "Star" },
+            { "value": "bolt", "label": "Bolt" }
+          ]
+        },
+        { "type": "text", "id": "text", "label": "Text", "default": "Secure checkout" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo promise strip" }]
+}
+{% endschema %}

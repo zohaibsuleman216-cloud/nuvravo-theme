@@ -1,0 +1,50 @@
+{% comment %}
+  Section contract.
+  "You may also like" row on product pages: other products from the product's first collection,
+  falling back to all products, as a swipeable row of Nuvravo cards.
+  @example
+  <!-- Add below the main product section in templates/product.json. -->
+{% endcomment %}
+{%- liquid
+  assign source = product.collections.first | default: collections.all
+  if source.products_count < 3
+    assign source = collections.all
+  endif
+-%}
+<section class="nv-section nv-section--surface nv-related" aria-labelledby="NvRelatedTitle-{{ section.id }}">
+  <div class="nv-container">
+    <div class="nv-head">
+      <div>
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        <h2 id="NvRelatedTitle-{{ section.id }}" class="nv-title">{{ section.settings.heading | escape }}</h2>
+      </div>
+      <a class="nv-btn nv-btn--outline" href="{{ source.url }}">
+        {{- section.settings.link_label | escape -}}
+        {% render 'nv-icon', name: 'arrow', size: 18 %}
+      </a>
+    </div>
+    <ul class="nv-grid nv-grid--scroll" role="list">
+      {%- assign shown = 0 -%}
+      {%- for item in source.products -%}
+        {%- if item.id == product.id -%}{%- continue -%}{%- endif -%}
+        {%- if shown >= section.settings.limit -%}{%- break -%}{%- endif -%}
+        <li>{% render 'nv-product-card', product: item, loading: 'lazy' %}</li>
+        {%- assign shown = shown | plus: 1 -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Nuvravo related products",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Complete your setup" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You may also like" },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "View collection" },
+    { "type": "range", "id": "limit", "label": "Products", "min": 2, "max": 12, "step": 1, "default": 8 }
+  ],
+  "presets": [{ "name": "Nuvravo related products" }]
+}
+{% endschema %}

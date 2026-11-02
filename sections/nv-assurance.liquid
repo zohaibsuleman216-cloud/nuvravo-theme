@@ -1,0 +1,126 @@
+{% comment %}
+  Section contract.
+  Compact row of purchase assurances (icon, title, short text, optional link) shown under
+  product information and on collection pages to answer shipping/returns/payment questions.
+  @example
+  <!-- Add below the main product section; link each item to its policy page. -->
+{% endcomment %}
+<section class="nv-assure" aria-label="{{ section.settings.aria_label | escape }}">
+  <div class="nv-container">
+    <ul class="nv-assure__grid" role="list">
+      {%- for block in section.blocks -%}
+        <li class="nv-assure__item" data-nv-reveal style="--nv-delay: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <span class="nv-assure__icon">{% render 'nv-icon', name: block.settings.icon, size: 24 %}</span>
+          <span class="nv-assure__body">
+            <span class="nv-assure__title">{{ block.settings.title | escape }}</span>
+            <span class="nv-assure__text">{{ block.settings.text | escape }}</span>
+            {%- if block.settings.link != blank and block.settings.link_label != blank -%}
+              <a class="nv-link nv-assure__link" href="{{ block.settings.link }}">
+                {{- block.settings.link_label | escape -}}
+                {% render 'nv-icon', name: 'arrow', size: 14 %}
+              </a>
+            {%- endif -%}
+          </span>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% stylesheet %}
+  .nv-assure {
+    padding-block: clamp(28px, 4vw, 48px);
+  }
+
+  .nv-assure__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nv-assure__item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--nv-surface);
+    border: 1px solid var(--nv-line);
+  }
+
+  .nv-assure__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    color: var(--nv-blue);
+    background: var(--nv-white);
+    box-shadow: var(--nv-shadow);
+  }
+
+  .nv-assure__body {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .nv-assure__title {
+    font-weight: 700;
+    color: var(--nv-ink);
+  }
+
+  .nv-assure__text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--nv-muted);
+  }
+
+  .nv-assure__link {
+    margin-top: 4px;
+    font-size: 0.85rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo assurances",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "aria_label", "label": "Accessible label", "default": "Shopping with confidence" }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Assurance",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "truck",
+          "options": [
+            { "value": "truck", "label": "Truck" },
+            { "value": "refresh", "label": "Returns" },
+            { "value": "lock", "label": "Lock" },
+            { "value": "headset", "label": "Support" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "globe", "label": "Globe" },
+            { "value": "card", "label": "Card" }
+          ]
+        },
+        { "type": "text", "id": "title", "label": "Title", "default": "Tracked shipping" },
+        { "type": "text", "id": "text", "label": "Text" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "text", "id": "link_label", "label": "Link label" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo assurances" }]
+}
+{% endschema %}

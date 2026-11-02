@@ -1,0 +1,200 @@
+{% comment %}
+  Section contract.
+  Split feature story: a large image beside an eyebrow, heading, text, a checklist of benefits
+  (one per line) and a call to action. Image side and light/dark style are configurable.
+  @example
+  <!-- Use to spotlight a category, e.g. "Comfort that lasts" for seat covers. -->
+{% endcomment %}
+{%- assign spot_image = section.settings.image | default: section.settings.collection.featured_image -%}
+<section
+  class="nv-section nv-spot{% if section.settings.style == 'dark' %} nv-section--dark{% endif %}"
+  aria-labelledby="NvSpotTitle-{{ section.id }}"
+>
+  <div class="nv-container nv-spot__inner{% if section.settings.image_side == 'right' %} nv-spot__inner--flip{% endif %}">
+    <div class="nv-spot__media" data-nv-reveal>
+      {%- if spot_image -%}
+        {{
+          spot_image
+          | image_url: width: 1400
+          | image_tag: widths: '500, 800, 1100, 1400', sizes: '(min-width: 990px) 50vw, 100vw', loading: 'lazy', alt: section.settings.image_alt
+        }}
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'nv-spot__placeholder' }}
+      {%- endif -%}
+      {%- if section.settings.tag != blank -%}
+        <span class="nv-spot__tag">
+          {% render 'nv-icon', name: 'bolt', size: 16 %}
+          {{ section.settings.tag | escape }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    <div class="nv-spot__copy">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow" data-nv-reveal>{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="NvSpotTitle-{{ section.id }}" class="nv-title" data-nv-reveal style="--nv-delay: 1">
+        {{ section.settings.heading | escape }}
+      </h2>
+      {%- if section.settings.text != blank -%}
+        <div class="nv-lede" data-nv-reveal style="--nv-delay: 2">{{ section.settings.text }}</div>
+      {%- endif -%}
+
+      {%- assign points = section.settings.points | newline_to_br | split: '<br />' -%}
+      <ul class="nv-spot__points" role="list" data-nv-reveal style="--nv-delay: 3">
+        {%- for point in points -%}
+          {%- assign point_text = point | strip -%}
+          {%- if point_text != blank -%}
+            <li>
+              <span class="nv-spot__check">{% render 'nv-icon', name: 'check', size: 16 %}</span>
+              <span>{{ point_text | escape }}</span>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.button_label != blank -%}
+        <a
+          class="nv-btn nv-btn--primary"
+          href="{{ section.settings.button_link | default: section.settings.collection.url | default: routes.all_products_collection_url }}"
+          data-nv-reveal
+          style="--nv-delay: 4"
+        >
+          {{- section.settings.button_label | escape -}}
+          {% render 'nv-icon', name: 'arrow', size: 18 %}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .nv-spot__inner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: clamp(32px, 6vw, 96px);
+  }
+
+  .nv-spot__inner--flip .nv-spot__media {
+    order: 2;
+  }
+
+  .nv-spot__media {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--nv-surface);
+    box-shadow: var(--nv-shadow-hover);
+  }
+
+  .nv-spot__media img,
+  .nv-spot__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--nv-ease);
+  }
+
+  .nv-spot__media:hover img {
+    transform: scale(1.04);
+  }
+
+  .nv-spot__tag {
+    position: absolute;
+    inset-block-end: 20px;
+    inset-inline-start: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--nv-white);
+    background: rgb(10 15 28 / 0.72);
+    backdrop-filter: blur(10px);
+  }
+
+  .nv-spot__tag .nv-icon {
+    color: var(--nv-blue-bright);
+  }
+
+  .nv-spot__points {
+    display: grid;
+    gap: 14px;
+    list-style: none;
+    margin: 28px 0 32px;
+    padding: 0;
+  }
+
+  .nv-spot__points li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .nv-spot__check {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: var(--nv-white);
+    background: var(--nv-blue);
+  }
+
+  @media (max-width: 899px) {
+    .nv-spot__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .nv-spot__inner--flip .nv-spot__media {
+      order: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo spotlight",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "default": "light",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "dark", "label": "Dark" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_side",
+      "label": "Image side",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "image_alt", "label": "Image alt text" },
+    { "type": "collection", "id": "collection", "label": "Collection (image fallback and link)" },
+    { "type": "text", "id": "tag", "label": "Image tag" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Built for the daily drive" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "textarea", "id": "points", "label": "Benefits (one per line)" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop now" },
+    { "type": "url", "id": "button_link", "label": "Button link" }
+  ],
+  "presets": [{ "name": "Nuvravo spotlight" }]
+}
+{% endschema %}

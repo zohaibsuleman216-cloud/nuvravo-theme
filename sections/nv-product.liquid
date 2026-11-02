@@ -1,0 +1,1043 @@
+{% comment %}
+  Section contract.
+  Main product page: swipeable gallery with thumbnails, title, price with savings, option pills,
+  quantity, Add to cart / Buy now / accelerated checkout, delivery estimate, trust badges,
+  detail accordions, a sticky buy bar, and Product structured data.
+  Behaviour lives in assets/nv-product.js; add-to-cart uses assets/nv-cart.js.
+  @example
+  <!-- Used as the "main" section of templates/product.json. -->
+{% endcomment %}
+{%- capture nv_title -%}{% render 'nv-copy', product: product, field: 'title' %}{%- endcapture -%}
+{%- capture nv_type -%}{% render 'nv-copy', product: product, field: 'type' %}{%- endcapture -%}
+{%- capture nv_description -%}{% render 'nv-copy', product: product, field: 'description' %}{%- endcapture -%}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign form_id = 'NvProductForm-' | append: section.id
+  assign on_sale = false
+  if variant.compare_at_price > variant.price
+    assign on_sale = true
+    assign saving_pct = variant.compare_at_price | minus: variant.price | times: 100 | divided_by: variant.compare_at_price
+  endif
+  assign label = nv_type | strip | default: product.collections.first.title
+  # Delivery matches the checkout shipping rate (free, 10–15 business days). US-warehouse items are flagged as faster.
+  assign us_warehouse = false
+  if product.tags contains 'US Warehouse' or variant.options contains 'United States'
+    assign us_warehouse = true
+  endif
+  assign fast_us = false
+  if us_warehouse and localization.country.iso_code == 'US'
+    assign fast_us = true
+  endif
+  assign now_s = 'now' | date: '%s' | plus: 0
+  if fast_us
+    assign eta_from = now_s | plus: 518400 | date: '%b %-d'
+    assign eta_to = now_s | plus: 950400 | date: '%b %-d'
+    assign delivery_days = '3–5 business days'
+  else
+    assign eta_from = now_s | plus: 1209600 | date: '%b %-d'
+    assign eta_to = now_s | plus: 1814400 | date: '%b %-d'
+    assign delivery_days = '10–15 business days'
+  endif
+  assign first_collection = product.collections.first
+-%}
+<div class="nv-pdp" data-nv-product data-section="{{ section.id }}">
+  <div class="nv-container">
+    <nav class="nv-pdp__crumbs" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a>
+      <span aria-hidden="true">/</span>
+      {%- if first_collection -%}
+        <a href="{{ first_collection.url }}">{{ first_collection.title | escape }}</a>
+        <span aria-hidden="true">/</span>
+      {%- endif -%}
+      <span aria-current="page">{{ nv_title }}</span>
+    </nav>
+
+    <div class="nv-pdp__grid">
+      {%- comment -%} Gallery {%- endcomment -%}
+      <div class="nv-pdp__gallery">
+        <div class="nv-pdp__stage">
+          <ul class="nv-pdp__slides" role="list" data-nv-slides aria-label="Product images">
+            {%- for media in product.media -%}
+              {%- if media.media_type != 'image' -%}{%- continue -%}{%- endif -%}
+              <li class="nv-pdp__slide" id="NvMedia-{{ section.id }}-{{ media.id }}" data-media-id="{{ media.id }}">
+                {%- if forloop.first -%}{%- assign media_loading = 'eager' -%}{%- assign media_priority = 'high' -%}{%- else -%}{%- assign media_loading = 'lazy' -%}{%- assign media_priority = 'auto' -%}{%- endif -%}
+                {{
+                  media
+                  | image_url: width: 1100
+                  | image_tag:
+                    widths: '400, 600, 800, 1100',
+                    sizes: '(min-width: 990px) 52vw, 100vw',
+                    loading: media_loading,
+                    fetchpriority: media_priority,
+                    alt: media.alt | default: product.title
+                }}
+              </li>
+            {%- else -%}
+              <li class="nv-pdp__slide">{{ 'product-1' | placeholder_svg_tag }}</li>
+            {%- endfor -%}
+          </ul>
+          {%- if on_sale -%}
+            <span class="nv-pdp__flag" data-nv-flag>Save {{ saving_pct }}%</span>
+          {%- else -%}
+            <span class="nv-pdp__flag" data-nv-flag hidden></span>
+          {%- endif -%}
+          <button type="button" class="nv-pdp__nav nv-pdp__nav--prev" data-nv-prev aria-label="Previous image">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button type="button" class="nv-pdp__nav nv-pdp__nav--next" data-nv-next aria-label="Next image">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        {%- if product.media.size > 1 -%}
+          <ul class="nv-pdp__thumbs" role="list" aria-label="Choose image">
+            {%- for media in product.media -%}
+              {%- if media.media_type != 'image' -%}{%- continue -%}{%- endif -%}
+              <li>
+                <button type="button" class="nv-pdp__thumb" data-nv-thumb="{{ media.id }}" aria-label="Show image {{ forloop.index }}" {% if forloop.first %}aria-current="true"{% endif %}>
+                  {{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Information {%- endcomment -%}
+      <div class="nv-pdp__info">
+        {%- if label != blank -%}
+          <p class="nv-pdp__label">{{ label }}</p>
+        {%- endif -%}
+        <h1 class="nv-pdp__title">{{ nv_title }}</h1>
+
+        <div class="nv-pdp__price" aria-live="polite">
+          <span class="nv-pdp__now" data-nv-now>{{ variant.price | money }}</span>
+          <s class="nv-pdp__was" data-nv-was {% unless on_sale %}hidden{% endunless %}>{{ variant.compare_at_price | money }}</s>
+          <span class="nv-pdp__save" data-nv-save {% unless on_sale %}hidden{% endunless %}>
+            {%- if on_sale -%}You save {{ variant.compare_at_price | minus: variant.price | money }}{%- endif -%}
+          </span>
+        </div>
+        <p class="nv-pdp__tax"><strong>Free shipping</strong> on every order · Taxes included where applicable.</p>
+
+        {%- assign hl_parts = nv_description | split: '<li>' -%}
+        {%- if hl_parts.size > 1 -%}
+          <ul class="nv-pdp__highlights" role="list" aria-label="Highlights">
+            {%- for part in hl_parts offset: 1 limit: 4 -%}
+              <li>
+                <span class="nv-pdp__hl-icon">{% render 'nv-icon', name: 'check', size: 14 %}</span>
+                <span>{{ part | split: '</li>' | first | strip_html | strip }}</span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {%- form 'product', product, id: form_id, class: 'nv-pdp__form', data-nv-product-form: '' -%}
+          <input type="hidden" name="id" value="{{ variant.id }}" data-nv-variant-id>
+
+          {%- unless product.has_only_default_variant -%}
+            {%- for option in product.options_with_values -%}
+              <fieldset class="nv-pdp__option">
+                <legend>
+                  {{ option.name | escape }}:
+                  <strong data-nv-option-value="{{ forloop.index0 }}">{{ option.selected_value | escape }}</strong>
+                </legend>
+                <div class="nv-pdp__pills">
+                  {%- assign option_index = forloop.index0 -%}
+                  {%- for value in option.values -%}
+                    <label class="nv-pdp__pill">
+                      <input
+                        type="radio"
+                        name="nv-option-{{ section.id }}-{{ option_index }}"
+                        value="{{ value | escape }}"
+                        data-nv-option="{{ option_index }}"
+                        {% if option.selected_value == value %}checked{% endif %}
+                      >
+                      <span>{{ value | escape }}</span>
+                    </label>
+                  {%- endfor -%}
+                </div>
+              </fieldset>
+            {%- endfor -%}
+          {%- endunless -%}
+
+          <div class="nv-pdp__buy">
+            <div class="nv-pdp__qty">
+              <button type="button" data-nv-qty="-1" aria-label="Decrease quantity">−</button>
+              <label class="visually-hidden" for="NvQty-{{ section.id }}">Quantity</label>
+              <input id="NvQty-{{ section.id }}" type="number" name="quantity" value="1" min="1" inputmode="numeric">
+              <button type="button" data-nv-qty="1" aria-label="Increase quantity">+</button>
+            </div>
+            <button type="submit" class="nv-pdp__btn nv-pdp__btn--cart" data-nv-add {% unless variant.available %}disabled{% endunless %}>
+              {% render 'nv-icon', name: 'bolt', size: 18 %}
+              <span data-nv-add-label>{% if variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+            </button>
+          </div>
+          <button type="submit" class="nv-pdp__btn nv-pdp__btn--buy" name="return_to" value="/checkout" data-nv-buy {% unless variant.available %}hidden{% endunless %}>
+            Buy it now
+          </button>
+          <div class="nv-pdp__express">{{ form | payment_button }}</div>
+        {%- endform -%}
+
+        <ul class="nv-pdp__facts" role="list">
+          <li class="nv-pdp__fact nv-pdp__fact--stock" data-nv-stock>
+            <span class="nv-pdp__dot" aria-hidden="true"></span>
+            <span data-nv-stock-text>{% if variant.available %}In stock, ready to ship{% else %}Currently sold out{% endif %}</span>
+          </li>
+          <li class="nv-pdp__fact">
+            {% render 'nv-icon', name: 'truck', size: 20 %}
+            <span>
+              <strong>Free shipping.</strong> Order today, estimated delivery <strong>{{ eta_from }} – {{ eta_to }}</strong>
+              {%- if fast_us %} · ships from our US warehouse in 3–5 business days{% endif -%}
+            </span>
+          </li>
+        </ul>
+
+        <ul class="nv-pdp__trust" role="list">
+          <li>{% render 'nv-icon', name: 'truck', size: 22 %}<span>Free shipping</span></li>
+          <li>{% render 'nv-icon', name: 'refresh', size: 22 %}<span>30-day returns</span></li>
+          <li>{% render 'nv-icon', name: 'lock', size: 22 %}<span>Secure checkout</span></li>
+          <li>{% render 'nv-icon', name: 'headset', size: 22 %}<span>Real support</span></li>
+        </ul>
+
+        {%- if shop.enabled_payment_types.size > 0 -%}
+          <ul class="nv-pdp__pay" role="list" aria-label="Payment methods">
+            {%- for type in shop.enabled_payment_types -%}
+              <li>{{ type | payment_type_svg_tag }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {%- liquid
+          assign nv_type_clean = nv_type | strip
+          case nv_type_clean
+            when 'OBD2 Scanner'
+              assign guide_url = '/blogs/news/how-to-use-an-obd2-scanner'
+              assign guide_title = 'How to use an OBD2 scanner'
+            when 'Phone Holder'
+              assign guide_url = '/blogs/news/car-phone-mount-types-explained'
+              assign guide_title = 'Car phone mount types explained'
+            when 'Detailing Towel', 'Detailing Kit'
+              assign guide_url = '/blogs/news/how-to-dry-your-car-without-scratches'
+              assign guide_title = 'How to dry your car without scratches'
+            when 'Seat Cover'
+              assign guide_url = '/blogs/news/how-to-choose-car-seat-covers'
+              assign guide_title = 'How to choose car seat covers that fit'
+            when 'Tire Inflator'
+              assign guide_url = '/blogs/news/how-to-check-and-inflate-tire-pressure'
+              assign guide_title = 'How to check and inflate tire pressure'
+            when 'Tire Repair Kit'
+              assign guide_url = '/blogs/news/how-to-fix-a-tire-puncture-with-a-plug-kit'
+              assign guide_title = 'How to fix a tire puncture with a plug kit'
+            else
+              assign guide_url = ''
+          endcase
+        -%}
+        {%- if guide_url != blank -%}
+          <a class="nv-pdp__guide" href="{{ guide_url }}">
+            <span class="nv-pdp__guide-icon">{% render 'nv-icon', name: 'sparkle', size: 18 %}</span>
+            <span><span class="nv-pdp__guide-kicker">Free guide</span><strong>{{ guide_title }}</strong></span>
+            {% render 'nv-icon', name: 'arrow', size: 18 %}
+          </a>
+        {%- endif -%}
+
+        <div class="nv-pdp__acc">
+          <details open>
+            <summary>Description</summary>
+            <div class="nv-pdp__acc-body rte">{{ nv_description }}</div>
+          </details>
+          <details>
+            <summary>Shipping &amp; delivery</summary>
+            <div class="nv-pdp__acc-body">
+              <p>Shipping is <strong>free</strong> on every order. Orders are processed within 1–3 business days and usually arrive within 10–15 business days{% if us_warehouse %}; this item ships from our US warehouse and arrives within 3–5 business days to US addresses{% endif %}. Every parcel ships with tracking.</p>
+              <p><a href="/pages/shipping-delivery">Full shipping information</a></p>
+            </div>
+          </details>
+          <details>
+            <summary>Returns &amp; warranty</summary>
+            <div class="nv-pdp__acc-body">
+              <p>Return unused items in their original packaging within 30 days of delivery. Damaged, faulty or incorrect items are replaced or refunded at no extra cost.</p>
+              <p><a href="/pages/returns-refunds">Returns &amp; refunds policy</a></p>
+            </div>
+          </details>
+          <details>
+            <summary>Need help choosing?</summary>
+            <div class="nv-pdp__acc-body">
+              <p>Not sure it fits your car or phone? Email <a href="mailto:support@nuvravo.com">support@nuvravo.com</a> with your make, model and year and we will reply within 24–48 hours.</p>
+            </div>
+          </details>
+        </div>
+
+        {%- for block in section.blocks -%}
+          {%- if block.type == '@app' -%}
+            <div class="nv-pdp__app">{% render block %}</div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+
+  <div class="nv-pdp__sticky" data-nv-sticky aria-hidden="true">
+    <div class="nv-container nv-pdp__sticky-inner">
+      {%- if product.featured_image -%}
+        {{ product.featured_image | image_url: width: 120 | image_tag: loading: 'lazy', alt: '', class: 'nv-pdp__sticky-img' }}
+      {%- endif -%}
+      <div class="nv-pdp__sticky-text">
+        <span class="nv-pdp__sticky-title">{{ nv_title }}</span>
+        <span class="nv-pdp__sticky-price" data-nv-now>{{ variant.price | money }}</span>
+      </div>
+      <button type="submit" form="{{ form_id }}" class="nv-pdp__btn nv-pdp__btn--buy nv-pdp__sticky-btn" data-nv-add tabindex="-1" {% unless variant.available %}disabled{% endunless %}>
+        <span data-nv-add-label>{% if variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+      </button>
+    </div>
+  </div>
+
+  <script type="application/json" data-nv-variants>
+    {{ product.variants | json }}
+  </script>
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+</div>
+
+<script type="module" src="{{ 'nv-product.js' | asset_url }}"></script>
+
+{% stylesheet %}
+  .nv-pdp {
+    padding-block: 20px clamp(48px, 7vw, 96px);
+  }
+
+  .nv-pdp__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 0.8rem;
+    color: var(--nv-muted);
+  }
+
+  .nv-pdp__crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .nv-pdp__crumbs a:hover {
+    color: var(--nv-ink);
+  }
+
+  .nv-pdp__crumbs [aria-current] {
+    max-width: 40ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--nv-ink);
+  }
+
+  .nv-pdp__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
+
+  .nv-pdp__gallery {
+    position: sticky;
+    top: calc(var(--header-height, 72px) + 16px);
+    min-width: 0;
+    width: 100%;
+    max-width: 540px;
+    justify-self: center;
+  }
+
+  .nv-pdp__stage {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #f6f7fa 0%, #eceff4 100%);
+  }
+
+  .nv-pdp__slides {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nv-pdp__slides::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nv-pdp__slide {
+    flex: 0 0 100%;
+    aspect-ratio: 1 / 1;
+    scroll-snap-align: center;
+  }
+
+  .nv-pdp__slide img,
+  .nv-pdp__slide svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .nv-pdp__flag {
+    position: absolute;
+    inset: 16px auto auto 16px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--nv-white);
+    background: var(--nv-accent);
+  }
+
+  .nv-pdp__nav {
+    position: absolute;
+    inset-block-start: 50%;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    color: var(--nv-ink);
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: var(--nv-shadow);
+    cursor: pointer;
+    translate: 0 -50%;
+    opacity: 0;
+    transition: opacity 0.3s var(--nv-ease);
+  }
+
+  .nv-pdp__stage:hover .nv-pdp__nav,
+  .nv-pdp__nav:focus-visible {
+    opacity: 1;
+  }
+
+  .nv-pdp__nav--prev { inset-inline-start: 14px; }
+  .nv-pdp__nav--next { inset-inline-end: 14px; }
+
+  .nv-pdp__thumbs {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 2px;
+  }
+
+  .nv-pdp__thumb {
+    display: block;
+    width: 76px;
+    height: 76px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--nv-surface);
+    cursor: pointer;
+    transition: border-color 0.3s var(--nv-ease);
+  }
+
+  .nv-pdp__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .nv-pdp__thumb[aria-current='true'] {
+    border-color: var(--nv-blue);
+  }
+
+  .nv-pdp__info {
+    min-width: 0;
+  }
+
+  .nv-pdp__label {
+    margin: 0 0 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--nv-blue);
+  }
+
+  .nv-pdp__title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(1.7rem, 1.2rem + 1.4vw, 2.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .nv-pdp__price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    margin-top: 18px;
+  }
+
+  .nv-pdp__now {
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .nv-pdp__was {
+    font-size: 1.1rem;
+    color: var(--nv-muted);
+  }
+
+  .nv-pdp__save {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--nv-accent);
+    background: #e6f1ec;
+  }
+
+  .nv-pdp__tax {
+    margin: 8px 0 0;
+    font-size: 0.8rem;
+    color: var(--nv-muted);
+  }
+
+  .nv-pdp__highlights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px;
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .nv-pdp__highlights li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .nv-pdp__hl-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 50%;
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+  }
+
+  @media (max-width: 599px) {
+    .nv-pdp__highlights {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .nv-pdp__form {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--nv-line);
+  }
+
+  .nv-pdp__option {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .nv-pdp__option legend {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: var(--nv-muted);
+  }
+
+  .nv-pdp__option legend strong {
+    color: var(--nv-ink);
+  }
+
+  .nv-pdp__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nv-pdp__pill {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .nv-pdp__pill input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .nv-pdp__pill span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1.5px solid var(--nv-line);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--nv-white);
+    transition: border-color 0.25s var(--nv-ease), background-color 0.25s var(--nv-ease), color 0.25s var(--nv-ease);
+  }
+
+  .nv-pdp__pill:hover span {
+    border-color: var(--nv-ink);
+  }
+
+  .nv-pdp__pill input:checked + span {
+    color: var(--nv-white);
+    border-color: var(--nv-ink);
+    background: var(--nv-ink);
+  }
+
+  .nv-pdp__pill input:focus-visible + span {
+    outline: 2px solid var(--nv-blue);
+    outline-offset: 2px;
+  }
+
+  .nv-pdp__pill.is-unavailable span {
+    color: var(--nv-muted);
+    text-decoration: line-through;
+  }
+
+  .nv-pdp__buy {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .nv-pdp__qty {
+    display: grid;
+    grid-template-columns: 42px 48px 42px;
+    align-items: center;
+    border: 1.5px solid var(--nv-line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .nv-pdp__qty button {
+    height: 54px;
+    border: 0;
+    background: transparent;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  .nv-pdp__qty button:hover {
+    background: var(--nv-surface);
+  }
+
+  .nv-pdp__qty input {
+    width: 100%;
+    height: 54px;
+    border: 0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    background: transparent;
+    -moz-appearance: textfield;
+  }
+
+  .nv-pdp__qty input::-webkit-outer-spin-button,
+  .nv-pdp__qty input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  .nv-pdp__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    font-family: var(--font-subheading--family);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s var(--nv-ease), box-shadow 0.3s var(--nv-ease), background-color 0.3s var(--nv-ease);
+  }
+
+  .nv-pdp__btn--cart {
+    color: var(--nv-white);
+    background: var(--nv-ink);
+  }
+
+  .nv-pdp__btn--cart:hover:not(:disabled) {
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+    transform: translateY(-1px);
+  }
+
+  .nv-pdp__btn--cart.is-added {
+    background: #15803d;
+  }
+
+  .nv-pdp__btn--buy {
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+    box-shadow: var(--nv-glow);
+  }
+
+  .nv-pdp__btn--buy:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px -10px rgb(var(--nv-blue-rgb) / 0.7);
+  }
+
+  .nv-pdp__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .nv-pdp__btn:focus-visible {
+    outline: 2px solid var(--nv-blue);
+    outline-offset: 3px;
+  }
+
+  .nv-pdp__express:empty {
+    display: none;
+  }
+
+  .nv-pdp__express .shopify-payment-button,
+  .nv-pdp__express .shopify-payment-button__button {
+    width: 100%;
+  }
+
+  .nv-pdp__express .shopify-payment-button__button--unbranded {
+    display: none !important;
+  }
+
+  .nv-pdp__express .shopify-payment-button__button {
+    border-radius: 14px;
+    min-height: 56px;
+    overflow: hidden;
+  }
+
+  .nv-pdp__express .shopify-payment-button__button--unbranded {
+    font-family: var(--font-subheading--family);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+    box-shadow: var(--nv-glow);
+    transition: transform 0.3s var(--nv-ease), box-shadow 0.3s var(--nv-ease);
+  }
+
+  .nv-pdp__express .shopify-payment-button__button--unbranded:hover:not([disabled]) {
+    background: var(--nv-accent-grad);
+    transform: translateY(-1px);
+  }
+
+  .nv-pdp__express .shopify-payment-button__more-options {
+    font-size: 0.85rem;
+    color: var(--nv-muted);
+  }
+
+  .nv-pdp__facts {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: var(--nv-surface);
+    font-size: 0.92rem;
+  }
+
+  .nv-pdp__fact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nv-pdp__fact .nv-icon {
+    flex: none;
+    color: var(--nv-blue);
+  }
+
+  .nv-pdp__fact--stock {
+    color: #15803d;
+    font-weight: 600;
+  }
+
+  .nv-pdp__fact--stock.is-out {
+    color: #b42318;
+  }
+
+  .nv-pdp__dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    margin-inline: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 4px rgb(34 197 94 / 0.18);
+    animation: nv-pulse 2s ease-in-out infinite;
+  }
+
+  .nv-pdp__trust {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+  }
+
+  .nv-pdp__trust li {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 14px 6px;
+    border: 1px solid var(--nv-line);
+    border-radius: 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .nv-pdp__trust .nv-icon {
+    color: var(--nv-blue);
+  }
+
+  .nv-pdp__pay {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+  }
+
+  .nv-pdp__pay svg {
+    width: 38px;
+    height: 24px;
+  }
+
+  .nv-pdp__guide {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--nv-line);
+    border-radius: 14px;
+    color: var(--nv-ink);
+    text-decoration: none;
+    transition: border-color 0.3s var(--nv-ease), transform 0.3s var(--nv-ease);
+  }
+
+  .nv-pdp__guide:hover {
+    border-color: var(--nv-accent);
+    transform: translateY(-1px);
+  }
+
+  .nv-pdp__guide > span:nth-child(2) {
+    display: grid;
+    flex: 1;
+  }
+
+  .nv-pdp__guide-kicker {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nv-accent);
+  }
+
+  .nv-pdp__guide-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+  }
+
+  .nv-pdp__acc {
+    margin-top: 26px;
+    border-top: 1px solid var(--nv-line);
+  }
+
+  .nv-pdp__acc details {
+    border-bottom: 1px solid var(--nv-line);
+  }
+
+  .nv-pdp__acc summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 2px;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .nv-pdp__acc summary::after {
+    content: '+';
+    font-size: 1.3rem;
+    font-weight: 400;
+    transition: transform 0.3s var(--nv-ease);
+  }
+
+  .nv-pdp__acc details[open] summary::after {
+    transform: rotate(45deg);
+  }
+
+  .nv-pdp__acc summary:focus-visible {
+    outline: 2px solid var(--nv-blue);
+    outline-offset: 2px;
+  }
+
+  .nv-pdp__acc-body {
+    padding: 0 2px 20px;
+    line-height: 1.7;
+    color: #374151;
+  }
+
+  .nv-pdp__acc-body p {
+    margin: 0 0 10px;
+  }
+
+  .nv-pdp__acc-body :is(h1, h2, h3, h4) {
+    margin: 1.2em 0 0.5em;
+    font-family: var(--font-heading--family);
+    font-size: 1.1rem;
+    line-height: 1.25;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .nv-pdp__acc-body a {
+    color: var(--nv-blue);
+  }
+
+  .nv-pdp__sticky {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 20;
+    padding-block: 10px;
+    background: rgb(255 255 255 / 0.96);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -10px 30px -12px rgb(10 15 28 / 0.25);
+    transform: translateY(110%);
+    transition: transform 0.45s var(--nv-ease);
+  }
+
+  .nv-pdp__sticky.is-visible {
+    transform: none;
+  }
+
+  .nv-pdp__sticky-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .nv-pdp__sticky-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--nv-surface);
+  }
+
+  .nv-pdp__sticky-text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .nv-pdp__sticky-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .nv-pdp__sticky-price {
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: 1.15rem;
+  }
+
+  .nv-pdp__sticky-btn {
+    width: auto;
+    min-height: 48px;
+    padding: 0 28px;
+  }
+
+  @keyframes nv-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgb(34 197 94 / 0.18); }
+    50% { box-shadow: 0 0 0 7px rgb(34 197 94 / 0.06); }
+  }
+
+  @media (max-width: 989px) {
+    .nv-pdp__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .nv-pdp__gallery {
+      position: static;
+    }
+
+    .nv-pdp__nav {
+      opacity: 1;
+      width: 38px;
+      height: 38px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .nv-pdp__trust {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nv-pdp__sticky-img {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-pdp__slides {
+      scroll-behavior: auto;
+    }
+
+    .nv-pdp__dot {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo product",
+  "tag": "section",
+  "blocks": [{ "type": "@app" }]
+}
+{% endschema %}

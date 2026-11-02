@@ -1,0 +1,459 @@
+{
+  "sections": {
+    "hero": {
+      "type": "nv-hero",
+      "settings": {
+        "image": "shopify://shop_images/nuvravo-hero-interior.jpg",
+        "eyebrow": "Smart car accessories",
+        "heading": "Upgrade every drive.",
+        "heading_accent": "Drive a smarter you.",
+        "text": "<p>Diagnostic scanners, premium seat covers, rock-solid phone mounts and pro detailing gear, selected for drivers who care about their car.</p>",
+        "button_label": "Shop best sellers",
+        "button_link": "shopify://collections/all",
+        "button2_label": "Browse categories",
+        "button2_link": "#categories",
+        "collection": "phone-holders",
+        "badge_text": "Driver favourites"
+      },
+      "blocks": {
+        "chip1": {
+          "type": "chip",
+          "settings": {
+            "icon": "truck",
+            "text": "Free tracked shipping"
+          }
+        },
+        "chip2": {
+          "type": "chip",
+          "settings": {
+            "icon": "lock",
+            "text": "Secure checkout"
+          }
+        },
+        "chip3": {
+          "type": "chip",
+          "settings": {
+            "icon": "refresh",
+            "text": "30-day returns"
+          }
+        },
+        "stat1": {
+          "type": "stat",
+          "settings": {
+            "number": "30",
+            "suffix": "+",
+            "label": "Countries we ship to"
+          }
+        },
+        "stat2": {
+          "type": "stat",
+          "settings": {
+            "number": "5",
+            "suffix": "",
+            "label": "Specialist categories"
+          }
+        },
+        "stat3": {
+          "type": "stat",
+          "settings": {
+            "number": "30",
+            "suffix": "-day",
+            "label": "Easy returns"
+          }
+        },
+        "stat4": {
+          "type": "stat",
+          "settings": {
+            "number": "100",
+            "suffix": "%",
+            "label": "Secure checkout"
+          }
+        }
+      },
+      "block_order": [
+        "chip1",
+        "chip2",
+        "chip3",
+        "stat1",
+        "stat2",
+        "stat3",
+        "stat4"
+      ]
+    },
+    "usp": {
+      "type": "nv-usp-bar",
+      "settings": {
+        "style": "dark",
+        "speed": 40,
+        "aria_label": "Store promises"
+      },
+      "blocks": {
+        "u1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "text": "Free tracked shipping on every order"
+          }
+        },
+        "u2": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "text": "Secure encrypted checkout"
+          }
+        },
+        "u3": {
+          "type": "item",
+          "settings": {
+            "icon": "refresh",
+            "text": "30-day easy returns"
+          }
+        },
+        "u4": {
+          "type": "item",
+          "settings": {
+            "icon": "headset",
+            "text": "Real human support"
+          }
+        },
+        "u5": {
+          "type": "item",
+          "settings": {
+            "icon": "shield",
+            "text": "Quality-checked products"
+          }
+        }
+      },
+      "block_order": [
+        "u1",
+        "u2",
+        "u3",
+        "u4",
+        "u5"
+      ]
+    },
+    "categories": {
+      "type": "nv-categories",
+      "settings": {
+        "eyebrow": "Shop by category",
+        "heading": "Everything your car needs",
+        "text": "Five focused ranges, from diagnostics to detailing.",
+        "link_label": "All products"
+      },
+      "blocks": {
+        "c1": {
+          "type": "category",
+          "settings": {
+            "collection": "obd2-diagnostic-tools",
+            "title": "OBD2 Scanners",
+            "tagline": "Know what that warning light means"
+          }
+        },
+        "c2": {
+          "type": "category",
+          "settings": {
+            "collection": "seat-covers",
+            "title": "Seat Covers",
+            "tagline": "Comfort that looks factory-fitted"
+          }
+        },
+        "c3": {
+          "type": "category",
+          "settings": {
+            "collection": "phone-holders",
+            "title": "Phone Holders",
+            "tagline": "Hands-free, rock-solid mounts"
+          }
+        },
+        "c4": {
+          "type": "category",
+          "settings": {
+            "collection": "car-detailing",
+            "title": "Car Detailing",
+            "tagline": "Pro-grade towels and brushes"
+          }
+        },
+        "c5": {
+          "type": "category",
+          "settings": {
+            "collection": "tire-care-emergency-tools",
+            "title": "Tire & Emergency",
+            "tagline": "Be ready for the unexpected"
+          }
+        }
+      },
+      "block_order": [
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "c5"
+      ]
+    },
+    "best": {
+      "type": "nv-product-grid",
+      "settings": {
+        "eyebrow": "Shop the range",
+        "heading": "Best sellers",
+        "text": "Driver favourites across every category.",
+        "collection": "",
+        "limit": 8,
+        "layout": "grid",
+        "surface": false,
+        "link_label": "View all products"
+      },
+      "blocks": {},
+      "block_order": []
+    },
+    "finder": {
+      "type": "nv-finder",
+      "settings": {
+        "eyebrow": "OBD2 scanner guide",
+        "heading": "Find the right scanner",
+        "text": "Three proven picks, from a quick code check to a full health report on your engine and battery.",
+        "highlight_label": "Most popular",
+        "button_label": "View details"
+      },
+      "blocks": {
+        "f1": {
+          "type": "pick",
+          "settings": {
+            "product": "v520-obd2-code-reader",
+            "level": "Starter",
+            "name": "V520 Code Reader",
+            "best_for": "Quick check-engine light answers on a budget.",
+            "features": "Reads engine fault codes\nPlug & play via the OBD2 port\n8 menu languages\nCompact, no app or pairing needed",
+            "highlight": false
+          }
+        },
+        "f2": {
+          "type": "pick",
+          "settings": {
+            "product": "konnwei-kw340-obd2-scanner",
+            "level": "Everyday",
+            "name": "KONNWEI KW340",
+            "best_for": "Drivers who want live data and battery health.",
+            "features": "Read & clear fault codes\nLive real-time engine data\nBattery and O2 sensor tests\n2.8\" colour display",
+            "highlight": true
+          }
+        },
+        "f3": {
+          "type": "pick",
+          "settings": {
+            "product": "launch-creader-529-obd2-scanner",
+            "level": "Trusted brand",
+            "name": "LAUNCH Creader 529",
+            "best_for": "DIYers who want a name-brand tool that stays up to date.",
+            "features": "Reads engine fault codes\nLifetime free software updates\n7 menu languages\nCE certified",
+            "highlight": false
+          }
+        }
+      },
+      "block_order": [
+        "f1",
+        "f2",
+        "f3"
+      ]
+    },
+    "spotlight": {
+      "type": "nv-spotlight",
+      "settings": {
+        "style": "light",
+        "image_side": "left",
+        "collection": "seat-covers",
+        "image_alt": "Black leather seat covers fitted in a car interior",
+        "tag": "Universal fit",
+        "eyebrow": "Interior upgrades",
+        "heading": "Comfort that looks factory-fitted",
+        "text": "<p>Breathable leather and mesh seat covers that protect your original upholstery and make every journey more comfortable.</p>",
+        "points": "Universal fit for most sedans, SUVs and pickups\nBreathable leather and mesh options\nEasy to install and wipe clean\nProtects seats from wear, spills and pets",
+        "button_label": "Shop seat covers"
+      },
+      "blocks": {},
+      "block_order": []
+    },
+    "holders": {
+      "type": "nv-product-tabs",
+      "settings": {
+        "eyebrow": "Shop by category",
+        "heading": "Find your next upgrade",
+        "limit": 4
+      },
+      "blocks": {
+        "t1": {
+          "type": "tab",
+          "settings": {
+            "collection": "phone-holders",
+            "label": "Phone Holders"
+          }
+        },
+        "t2": {
+          "type": "tab",
+          "settings": {
+            "collection": "obd2-diagnostic-tools",
+            "label": "OBD2 Scanners"
+          }
+        },
+        "t3": {
+          "type": "tab",
+          "settings": {
+            "collection": "seat-covers",
+            "label": "Seat Covers"
+          }
+        },
+        "t4": {
+          "type": "tab",
+          "settings": {
+            "collection": "car-detailing",
+            "label": "Car Detailing"
+          }
+        },
+        "t5": {
+          "type": "tab",
+          "settings": {
+            "collection": "tire-care-emergency-tools",
+            "label": "Tire & Emergency"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5"
+      ]
+    },
+    "values": {
+      "type": "nv-values",
+      "settings": {
+        "style": "dark",
+        "eyebrow": "Why Nuvravo",
+        "heading": "Smarter gear. Simpler shopping.",
+        "text": "Everything we stock earns its place, and every order is backed by people who answer."
+      },
+      "blocks": {
+        "v1": {
+          "type": "value",
+          "settings": {
+            "icon": "shield",
+            "title": "Curated & checked",
+            "text": "A focused range selected for build quality and everyday usefulness."
+          }
+        },
+        "v2": {
+          "type": "value",
+          "settings": {
+            "icon": "truck",
+            "title": "Free tracked shipping",
+            "text": "Free shipping on every order, dispatched in 1–3 business days with tracking to 30+ countries."
+          }
+        },
+        "v3": {
+          "type": "value",
+          "settings": {
+            "icon": "refresh",
+            "title": "Easy returns",
+            "text": "30 days to change your mind. Faulty items replaced at no cost."
+          }
+        },
+        "v4": {
+          "type": "value",
+          "settings": {
+            "icon": "headset",
+            "title": "Real support",
+            "text": "Fit or compatibility questions? Our team replies within 24–48 hours."
+          }
+        }
+      },
+      "block_order": [
+        "v1",
+        "v2",
+        "v3",
+        "v4"
+      ]
+    },
+    "faq": {
+      "type": "nv-faq",
+      "settings": {
+        "eyebrow": "FAQ",
+        "heading": "Questions, answered",
+        "text": "<p>Quick answers about delivery, returns and compatibility.</p>",
+        "button_label": "Contact support",
+        "button_link": "/pages/contact",
+        "open_first": true
+      },
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "How long does delivery take?",
+            "answer": "<p>Shipping is free on every order. Orders are processed within 1–3 business days and usually arrive within 10–15 business days; items from our US warehouse arrive within 3–5 business days to US addresses. Every parcel ships with tracking. See <a href=\"/pages/shipping-delivery\">Shipping &amp; Delivery</a> for details.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Which countries do you ship to?",
+            "answer": "<p>We ship to the United States, Canada, the United Kingdom, Israel and most EU countries. Shipping is free to every destination, and available countries are shown at checkout.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What is your return policy?",
+            "answer": "<p>You can return unused items in their original packaging within 30 days of delivery. Damaged, faulty or incorrect items are replaced or refunded at no cost. See <a href=\"/pages/returns-refunds\">Returns &amp; Refunds</a>.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Will an OBD2 scanner work with my car?",
+            "answer": "<p>OBD2 scanners work with vehicles that have an OBD2/EOBD port: most petrol cars sold in the US from 1996 and in the EU from 2001 (diesel from 2004). Some models list extra limits on their product page, for example petrol-only support. Not sure? Email us your make, model and year.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Is checkout secure?",
+            "answer": "<p>Yes. Checkout runs on Shopify's encrypted, PCI-compliant platform, and we never see or store your full card details.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ]
+    },
+    "cta": {
+      "type": "nv-cta",
+      "settings": {
+        "style": "cta",
+        "eyebrow": "Drive a smarter you",
+        "heading": "Ready to upgrade your ride?",
+        "text": "<p>Explore the full Nuvravo range and find your next favourite accessory.</p>",
+        "button_label": "Shop all products",
+        "button_link": "shopify://collections/all",
+        "button2_label": "Get help choosing",
+        "button2_link": "/pages/contact"
+      },
+      "blocks": {},
+      "block_order": []
+    }
+  },
+  "order": [
+    "hero",
+    "usp",
+    "categories",
+    "best",
+    "finder",
+    "spotlight",
+    "holders",
+    "values",
+    "faq",
+    "cta"
+  ]
+}

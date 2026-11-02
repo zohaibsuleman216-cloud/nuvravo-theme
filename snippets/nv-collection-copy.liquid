@@ -1,0 +1,10 @@
+{%- doc -%}
+  Collection title or description, with a friendly name for the all-products collection.
+  @param {object} collection - The collection
+  @param {string} field - 'title' or 'description'
+{%- enddoc -%}
+{%- if field == 'title' -%}
+  {%- if collection.handle == 'all' -%}All products{%- else -%}{{ collection.title | escape }}{%- endif -%}
+{%- else -%}
+  {{- collection.description -}}
+{%- endif -%}

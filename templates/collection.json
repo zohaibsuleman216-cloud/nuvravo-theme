@@ -1,0 +1,58 @@
+{
+  "sections": {
+    "main": {
+      "type": "nv-collection",
+      "settings": {
+        "menu": ""
+      }
+    },
+    "usp": {
+      "type": "nv-usp-bar",
+      "settings": {
+        "style": "dark",
+        "speed": 45,
+        "aria_label": "Store promises"
+      },
+      "blocks": {
+        "u1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "text": "Free tracked shipping on every order"
+          }
+        },
+        "u2": {
+          "type": "item",
+          "settings": {
+            "icon": "refresh",
+            "text": "30-day easy returns"
+          }
+        },
+        "u3": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "text": "Secure checkout"
+          }
+        },
+        "u4": {
+          "type": "item",
+          "settings": {
+            "icon": "headset",
+            "text": "Real human support"
+          }
+        }
+      },
+      "block_order": [
+        "u1",
+        "u2",
+        "u3",
+        "u4"
+      ]
+    }
+  },
+  "order": [
+    "main",
+    "usp"
+  ]
+}

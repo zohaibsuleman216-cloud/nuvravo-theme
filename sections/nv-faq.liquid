@@ -1,0 +1,196 @@
+{% comment %}
+  Section contract.
+  FAQ accordion built on native <details>, with an intro column and a support link.
+  Outputs FAQPage structured data so answers can appear in search results.
+  @example
+  <!-- Add a "Question" block per FAQ. Used on the homepage and the FAQ page. -->
+{% endcomment %}
+<section class="nv-section nv-faq" aria-labelledby="NvFaqTitle-{{ section.id }}">
+  <div class="nv-container nv-faq__inner">
+    <div class="nv-faq__intro" data-nv-reveal>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="NvFaqTitle-{{ section.id }}" class="nv-title">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <div class="nv-lede">{{ section.settings.text }}</div>
+      {%- endif -%}
+      {%- if section.settings.button_label != blank -%}
+        <a class="nv-btn nv-btn--outline nv-faq__btn" href="{{ section.settings.button_link | default: '/pages/contact' }}">
+          {% render 'nv-icon', name: 'headset', size: 18 %}
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="nv-faq__list">
+      {%- for block in section.blocks -%}
+        <details class="nv-faq__item" data-nv-reveal style="--nv-delay: {{ forloop.index0 | at_most: 5 }}" {% if forloop.first and section.settings.open_first %}open{% endif %} {{ block.shopify_attributes }}>
+          <summary class="nv-faq__q">
+            <span>{{ block.settings.question | escape }}</span>
+            <span class="nv-faq__sign" aria-hidden="true"></span>
+          </summary>
+          <div class="nv-faq__a">{{ block.settings.answer }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- if section.blocks.size > 0 -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {%- for block in section.blocks -%}
+            {
+              "@type": "Question",
+              "name": {{ block.settings.question | json }},
+              "acceptedAnswer": { "@type": "Answer", "text": {{ block.settings.answer | strip_html | json }} }
+            }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    </script>
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+  .nv-faq__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+  }
+
+  .nv-faq__intro {
+    position: sticky;
+    top: calc(var(--header-height, 72px) + 24px);
+  }
+
+  .nv-faq__btn {
+    margin-top: 28px;
+  }
+
+  .nv-faq__list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .nv-faq__item {
+    border-radius: 16px;
+    border: 1px solid var(--nv-line);
+    background: var(--nv-white);
+    transition: border-color 0.4s var(--nv-ease), box-shadow 0.4s var(--nv-ease);
+  }
+
+  .nv-faq__item[open] {
+    border-color: rgb(var(--nv-blue-rgb) / 0.5);
+    box-shadow: var(--nv-shadow);
+  }
+
+  .nv-faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .nv-faq__q:focus-visible {
+    outline: 2px solid var(--nv-blue);
+    outline-offset: -2px;
+    border-radius: 16px;
+  }
+
+  .nv-faq__sign {
+    position: relative;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--nv-surface);
+    transition: background-color 0.4s var(--nv-ease), transform 0.4s var(--nv-ease);
+  }
+
+  .nv-faq__sign::before,
+  .nv-faq__sign::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 12px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    translate: -50% -50%;
+    transition: transform 0.4s var(--nv-ease);
+  }
+
+  .nv-faq__sign::after {
+    transform: rotate(90deg);
+  }
+
+  .nv-faq__item[open] .nv-faq__sign {
+    color: var(--nv-white);
+    background: var(--nv-blue);
+    transform: rotate(180deg);
+  }
+
+  .nv-faq__item[open] .nv-faq__sign::after {
+    transform: rotate(0deg);
+  }
+
+  .nv-faq__a {
+    padding: 0 24px 22px;
+    color: var(--nv-muted);
+    line-height: 1.7;
+  }
+
+  .nv-faq__a p {
+    margin: 0 0 10px;
+  }
+
+  .nv-faq__a p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 899px) {
+    .nv-faq__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .nv-faq__intro {
+      position: static;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo FAQ",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "FAQ" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Questions, answered" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Contact support" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "checkbox", "id": "open_first", "label": "Open first question", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "How long does shipping take?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Answer goes here.</p>" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo FAQ" }]
+}
+{% endschema %}

@@ -1,0 +1,89 @@
+{%- doc -%}
+  Extra structured data for search engines: WebSite on the homepage, BreadcrumbList on
+  product/collection/article/page templates, and CollectionPage + ItemList on collections.
+  Product, Article, Organization and FAQPage are already output elsewhere.
+{%- enddoc -%}
+{%- liquid
+  assign root = request.origin | append: routes.root_url | remove_last: '/'
+-%}
+{%- if request.page_type == 'index' -%}
+  {%- capture search_template -%}{{ root }}{{ routes.search_url }}?q={% raw %}{search_term_string}{% endraw %}{%- endcapture -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "url": {{ root | append: '/' | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": {{ search_template | json }} },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+{%- endif -%}
+
+{%- liquid
+  assign crumbs_names = ''
+  assign crumbs_urls = ''
+  case request.page_type
+    when 'product'
+      assign c = product.collections.first
+      if c
+        assign crumbs_names = c.title | append: '|||' | append: product.title
+        assign crumbs_urls = c.url | append: '|||' | append: product.url
+      else
+        assign crumbs_names = product.title
+        assign crumbs_urls = product.url
+      endif
+    when 'collection'
+      assign crumbs_names = collection.title
+      assign crumbs_urls = collection.url
+    when 'article'
+      assign crumbs_names = blog.title | append: '|||' | append: article.title
+      assign crumbs_urls = blog.url | append: '|||' | append: article.url
+    when 'blog'
+      assign crumbs_names = blog.title
+      assign crumbs_urls = blog.url
+    when 'page'
+      assign crumbs_names = page.title
+      assign crumbs_urls = page.url
+  endcase
+-%}
+{%- if crumbs_names != blank -%}
+  {%- assign names = crumbs_names | split: '|||' -%}
+  {%- assign urls = crumbs_urls | split: '|||' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ root | append: '/' | json }} }
+        {%- for n in names -%}
+          , { "@type": "ListItem", "position": {{ forloop.index | plus: 1 }}, "name": {{ n | json }}, "item": {{ root | append: urls[forloop.index0] | json }} }
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}
+
+{%- if request.page_type == 'collection' and collection.products_count > 0 -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": {{ collection.title | json }},
+      "url": {{ root | append: collection.url | json }},
+      "description": {{ collection.description | strip_html | truncate: 300 | json }},
+      "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": {{ collection.products_count }},
+        "itemListElement": [
+          {%- for p in collection.products limit: 30 -%}
+            { "@type": "ListItem", "position": {{ forloop.index }}, "url": {{ root | append: p.url | json }}, "name": {{ p.title | json }} }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    }
+  </script>
+{%- endif -%}

@@ -1,0 +1,176 @@
+{% comment %}
+  Section contract.
+  "Shop by category" tabs: one tab per collection block; each panel shows that collection's
+  products as Nuvravo cards. Uses the ARIA tabs pattern with arrow-key navigation.
+  @example
+  <!-- Add a "Tab" block per collection. The first tab is selected on load. -->
+{% endcomment %}
+<section class="nv-section nv-tabs" aria-labelledby="NvTabsTitle-{{ section.id }}" data-nv-tabs>
+  <div class="nv-container">
+    <div class="nv-head nv-head--center" data-nv-reveal>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="NvTabsTitle-{{ section.id }}" class="nv-title">{{ section.settings.heading | escape }}</h2>
+    </div>
+
+    <div class="nv-tabs__list" role="tablist" aria-labelledby="NvTabsTitle-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- assign c = block.settings.collection -%}
+        <button
+          type="button"
+          role="tab"
+          class="nv-tabs__tab"
+          id="NvTab-{{ block.id }}"
+          aria-controls="NvPanel-{{ block.id }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.label != blank -%}
+            {{ block.settings.label | escape }}
+          {%- else -%}
+            {% render 'nv-collection-copy', collection: c, field: 'title' %}
+          {%- endif -%}
+        </button>
+      {%- endfor -%}
+    </div>
+
+    {%- for block in section.blocks -%}
+      {%- assign c = block.settings.collection | default: collections.all -%}
+      <div
+        class="nv-tabs__panel"
+        role="tabpanel"
+        id="NvPanel-{{ block.id }}"
+        aria-labelledby="NvTab-{{ block.id }}"
+        tabindex="0"
+        {% unless forloop.first %}hidden{% endunless %}
+      >
+        <ul class="nv-grid" role="list">
+          {%- for product in c.products limit: section.settings.limit -%}
+            <li>{% render 'nv-product-card', product: product, loading: 'lazy' %}</li>
+          {%- endfor -%}
+        </ul>
+        <div class="nv-tabs__more">
+          <a class="nv-btn nv-btn--outline" href="{{ c.url }}">
+            Shop all {% render 'nv-collection-copy', collection: c, field: 'title' %}
+            {% render 'nv-icon', name: 'arrow', size: 18 %}
+          </a>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+</section>
+
+<script type="module">
+  for (const root of document.querySelectorAll('[data-nv-tabs]:not([data-ready])')) {
+    root.dataset.ready = 'true';
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        const panel = root.querySelector(`#${t.getAttribute('aria-controls')}`);
+        if (panel) panel.hidden = !on;
+      }
+      if (focus) tab.focus();
+    };
+    for (const tab of tabs) {
+      tab.addEventListener('click', () => select(tab, false));
+      tab.addEventListener('keydown', (event) => {
+        const i = tabs.indexOf(tab);
+        const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        select(tabs[(next + tabs.length) % tabs.length], true);
+      });
+    }
+  }
+</script>
+
+{% stylesheet %}
+  .nv-tabs__list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: clamp(24px, 4vw, 40px);
+  }
+
+  .nv-tabs__tab {
+    min-height: 46px;
+    padding: 0 22px;
+    border: 1.5px solid var(--nv-line);
+    border-radius: 999px;
+    font-family: var(--font-subheading--family);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--nv-ink);
+    background: var(--nv-white);
+    cursor: pointer;
+    transition: background-color 0.3s var(--nv-ease), color 0.3s var(--nv-ease), border-color 0.3s var(--nv-ease), transform 0.3s var(--nv-ease);
+  }
+
+  .nv-tabs__tab:hover {
+    border-color: var(--nv-ink);
+    transform: translateY(-1px);
+  }
+
+  .nv-tabs__tab[aria-selected='true'] {
+    color: var(--nv-white);
+    border-color: transparent;
+    background: var(--nv-accent-grad);
+    box-shadow: 0 10px 22px -10px rgb(var(--nv-accent-rgb) / 0.8);
+  }
+
+  .nv-tabs__tab:focus-visible,
+  .nv-tabs__panel:focus-visible {
+    outline: 2px solid var(--nv-accent-text);
+    outline-offset: 3px;
+  }
+
+  .nv-tabs__panel:not([hidden]) {
+    animation: nv-tab-in 0.5s var(--nv-ease);
+  }
+
+  .nv-tabs__more {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+
+  @keyframes nv-tab-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-tabs__panel:not([hidden]) {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo category tabs",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Shop by category" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Find your next upgrade" },
+    { "type": "range", "id": "limit", "label": "Products per tab", "min": 4, "max": 12, "step": 4, "default": 4 }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "text", "id": "label", "label": "Label override" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo category tabs" }]
+}
+{% endschema %}

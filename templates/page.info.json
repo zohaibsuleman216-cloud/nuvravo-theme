@@ -1,0 +1,96 @@
+{
+  "sections": {
+    "header": {
+      "type": "nv-cta",
+      "settings": {
+        "style": "header",
+        "eyebrow": "Customer care",
+        "heading": "",
+        "text": "",
+        "button_label": "",
+        "button2_label": ""
+      },
+      "blocks": {},
+      "block_order": []
+    },
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "assurance": {
+      "type": "nv-assurance",
+      "settings": {
+        "aria_label": "Shopping with confidence"
+      },
+      "blocks": {
+        "a1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Free tracked shipping",
+            "text": "Free shipping on every order, dispatched in 1–3 business days with tracking.",
+            "link": "/pages/shipping-delivery",
+            "link_label": "Shipping info"
+          }
+        },
+        "a2": {
+          "type": "item",
+          "settings": {
+            "icon": "refresh",
+            "title": "30-day returns",
+            "text": "Changed your mind? Return unused items within 30 days.",
+            "link": "/pages/returns-refunds",
+            "link_label": "Returns policy"
+          }
+        },
+        "a3": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "title": "Secure checkout",
+            "text": "Encrypted payments with trusted providers.",
+            "link": "",
+            "link_label": ""
+          }
+        },
+        "a4": {
+          "type": "item",
+          "settings": {
+            "icon": "headset",
+            "title": "Real human support",
+            "text": "Questions? We reply within 24–48 hours.",
+            "link": "/pages/contact",
+            "link_label": "Contact us"
+          }
+        }
+      },
+      "block_order": [
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ]
+    }
+  },
+  "order": [
+    "header",
+    "main",
+    "assurance"
+  ]
+}

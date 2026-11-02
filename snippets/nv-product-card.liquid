@@ -1,0 +1,120 @@
+{%- doc -%}
+  Renders the Nuvravo product card: boxed image, badges, category, title, prominent price with savings,
+  an option dropdown for multi-variant products, and Add to cart / Buy now buttons.
+  Add to cart is enhanced by assets/nv-cart.js (opens the cart drawer); without JS the form posts to /cart/add.
+
+  @param {object} product - The product to render
+  @param {string} [loading] - Image loading strategy, defaults to 'lazy'
+  @param {string} [sizes] - Image sizes attribute
+
+  @example
+  {% render 'nv-product-card', product: product, loading: 'lazy' %}
+{%- enddoc -%}
+{%- capture nv_title -%}{% render 'nv-copy', product: product, field: 'title' %}{%- endcapture -%}
+{%- capture nv_type -%}{% render 'nv-copy', product: product, field: 'type' %}{%- endcapture -%}
+{%- liquid
+  assign loading = loading | default: 'lazy'
+  assign sizes = sizes | default: '(min-width: 1200px) 290px, (min-width: 1100px) 24vw, (min-width: 750px) 31vw, 48vw'
+  assign variant = product.selected_or_first_available_variant
+  assign on_sale = false
+  if variant.compare_at_price > variant.price
+    assign on_sale = true
+    assign saving = variant.compare_at_price | minus: variant.price
+    assign saving_pct = saving | times: 100 | divided_by: variant.compare_at_price
+  endif
+  assign is_best = false
+  if product.tags contains 'Best Seller'
+    assign is_best = true
+  endif
+  assign label = nv_type | strip | default: product.collections.first.title
+  assign uid = product.id | append: '-' | append: section.id
+-%}
+<article class="nv-card" data-nv-card>
+  <a class="nv-card__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+    {%- if product.featured_image -%}
+      {{
+        product.featured_image
+        | image_url: width: 600
+        | image_tag:
+          widths: '200, 280, 360, 440, 520, 600',
+          sizes: sizes,
+          loading: loading,
+          alt: '',
+          class: 'nv-card__img'
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'nv-card__img' }}
+    {%- endif -%}
+    <span class="nv-card__badges">
+      {%- if on_sale -%}
+        <span class="nv-card__badge nv-card__badge--sale">-{{ saving_pct }}%</span>
+      {%- endif -%}
+      {%- if is_best -%}
+        <span class="nv-card__badge nv-card__badge--best">Best seller</span>
+      {%- endif -%}
+      {%- unless product.available -%}
+        <span class="nv-card__badge nv-card__badge--out">Sold out</span>
+      {%- endunless -%}
+    </span>
+  </a>
+
+  <div class="nv-card__body">
+    {%- if label != blank -%}
+      <p class="nv-card__label">{{ label }}</p>
+    {%- endif -%}
+    <h3 class="nv-card__title">
+      <a href="{{ product.url }}">{{ nv_title }}</a>
+    </h3>
+
+    <div class="nv-card__price" data-nv-price>
+      <span class="nv-card__now" data-nv-now>
+        {%- if product.price_varies and product.variants.size > 1 -%}
+          <span class="nv-card__from">From</span> {{ product.price_min | money }}
+        {%- else -%}
+          {{ variant.price | money }}
+        {%- endif -%}
+      </span>
+      <s class="nv-card__was" data-nv-was {% unless on_sale %}hidden{% endunless %}>{{ variant.compare_at_price | money }}</s>
+    </div>
+
+    {%- if product.available -%}
+      <p class="nv-card__stock">
+        <span class="nv-card__dot" aria-hidden="true"></span>
+        In stock · Free shipping
+      </p>
+    {%- endif -%}
+
+    {%- form 'product', product, class: 'nv-card__form', data-nv-card-form: '' -%}
+      {%- if product.has_only_default_variant or product.variants.size == 1 -%}
+        <input type="hidden" name="id" value="{{ variant.id }}">
+      {%- else -%}
+        <label class="visually-hidden" for="NvCardVariant-{{ uid }}">Choose an option for {{ nv_title }}</label>
+        <div class="nv-card__select">
+          <select id="NvCardVariant-{{ uid }}" name="id" data-nv-variant-select>
+            {%- for v in product.variants -%}
+              <option
+                value="{{ v.id }}"
+                data-price="{{ v.price | money | escape }}"
+                data-was="{% if v.compare_at_price > v.price %}{{ v.compare_at_price | money | escape }}{% endif %}"
+                {% if v.id == variant.id %}selected{% endif %}
+                {% unless v.available %}disabled{% endunless %}
+              >
+                {{- v.title | escape }}{% unless v.available %} (sold out){% endunless -%}
+              </option>
+            {%- endfor -%}
+          </select>
+          <svg class="nv-card__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      {%- endif -%}
+      <input type="hidden" name="quantity" value="1">
+      <div class="nv-card__actions">
+        <button type="submit" class="nv-card__btn nv-card__btn--cart" data-nv-add {% unless product.available %}disabled{% endunless %}>
+          <span data-nv-add-label>{% if product.available %}Add to cart{% else %}Sold out{% endif %}</span>
+        </button>
+        {%- if product.available -%}
+          <button type="submit" class="nv-card__btn nv-card__btn--buy" name="return_to" value="/checkout">Buy now</button>
+        {%- endif -%}
+      </div>
+    {%- endform -%}
+  </div>
+</article>

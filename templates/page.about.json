@@ -1,0 +1,108 @@
+{
+  "sections": {
+    "header": {
+      "type": "nv-cta",
+      "settings": {
+        "style": "header",
+        "eyebrow": "Our story",
+        "heading": "",
+        "text": "<p>Smart, practical car accessories for drivers who care.</p>",
+        "button_label": "Shop the range",
+        "button_link": "shopify://collections/all",
+        "button2_label": ""
+      },
+      "blocks": {},
+      "block_order": []
+    },
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "values": {
+      "type": "nv-values",
+      "settings": {
+        "style": "dark",
+        "eyebrow": "Why Nuvravo",
+        "heading": "Smarter gear. Simpler shopping.",
+        "text": "Everything we stock earns its place, and every order is backed by people who answer."
+      },
+      "blocks": {
+        "v1": {
+          "type": "value",
+          "settings": {
+            "icon": "shield",
+            "title": "Curated & checked",
+            "text": "A focused range selected for build quality and everyday usefulness."
+          }
+        },
+        "v2": {
+          "type": "value",
+          "settings": {
+            "icon": "truck",
+            "title": "Free tracked shipping",
+            "text": "Free shipping on every order, dispatched in 1–3 business days with tracking to 30+ countries."
+          }
+        },
+        "v3": {
+          "type": "value",
+          "settings": {
+            "icon": "refresh",
+            "title": "Easy returns",
+            "text": "30 days to change your mind. Faulty items replaced at no cost."
+          }
+        },
+        "v4": {
+          "type": "value",
+          "settings": {
+            "icon": "headset",
+            "title": "Real support",
+            "text": "Fit or compatibility questions? Our team replies within 24–48 hours."
+          }
+        }
+      },
+      "block_order": [
+        "v1",
+        "v2",
+        "v3",
+        "v4"
+      ]
+    },
+    "cta": {
+      "type": "nv-cta",
+      "settings": {
+        "style": "cta",
+        "eyebrow": "Drive a smarter you",
+        "heading": "Ready to upgrade your ride?",
+        "text": "<p>Explore the full Nuvravo range and find your next favourite accessory.</p>",
+        "button_label": "Shop all products",
+        "button_link": "shopify://collections/all",
+        "button2_label": "Get help choosing",
+        "button2_link": "/pages/contact"
+      },
+      "blocks": {},
+      "block_order": []
+    }
+  },
+  "order": [
+    "header",
+    "main",
+    "values",
+    "cta"
+  ]
+}

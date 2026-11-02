@@ -1,0 +1,23 @@
+{
+  "sections": {
+    "main": {
+      "type": "nv-product",
+      "settings": {}
+    },
+    "related": {
+      "type": "nv-related",
+      "settings": {
+        "eyebrow": "Complete your setup",
+        "heading": "You may also like",
+        "link_label": "View collection",
+        "limit": 8
+      },
+      "blocks": {},
+      "block_order": []
+    }
+  },
+  "order": [
+    "main",
+    "related"
+  ]
+}

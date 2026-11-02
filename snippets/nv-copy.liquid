@@ -1,0 +1,11 @@
+{%- doc -%}
+  Draft-only product copy preview. Outputs the rewritten title, description or type for a product,
+  falling back to the live product data.
+
+  @param {object} product - The product
+  @param {string} field - 'title', 'description' or 'type'
+
+  @example
+  {% render 'nv-copy', product: product, field: 'title' %}
+{%- enddoc -%}
+{%- case field -%}{%- when 'title' -%}{{ product.title | escape }}{%- when 'description' -%}{{ product.description }}{%- when 'type' -%}{{ product.type | escape }}{%- endcase -%}

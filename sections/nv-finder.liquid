@@ -1,0 +1,251 @@
+{% comment %}
+  Section contract.
+  Guided product chooser ("Find your scanner"): up to four product cards with a level badge,
+  who it is for, a feature checklist (one feature per line) and a link to the product.
+  One card can be highlighted as the recommended pick.
+  @example
+  <!-- Add a "Pick" block per product; enable "Highlight" on the recommended one. -->
+{% endcomment %}
+<section class="nv-section nv-section--surface nv-finder" aria-labelledby="NvFinderTitle-{{ section.id }}">
+  <div class="nv-container">
+    <div class="nv-head nv-head--center" data-nv-reveal>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="NvFinderTitle-{{ section.id }}" class="nv-title">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="nv-lede">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <ul class="nv-finder__grid" role="list">
+      {%- for block in section.blocks -%}
+        {%- assign product = block.settings.product -%}
+        {%- if product == blank -%}{%- continue -%}{%- endif -%}
+        <li
+          class="nv-finder__card{% if block.settings.highlight %} nv-finder__card--hot{% endif %}"
+          data-nv-reveal
+          style="--nv-delay: {{ forloop.index0 }}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.highlight -%}
+            <span class="nv-finder__flag">{{ section.settings.highlight_label | escape }}</span>
+          {%- endif -%}
+          <p class="nv-finder__level">{{ block.settings.level | escape }}</p>
+          <a class="nv-finder__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+            {%- if product.featured_image -%}
+              {{
+                product.featured_image
+                | image_url: width: 700
+                | image_tag: widths: '300, 450, 600, 700', sizes: '(min-width: 990px) 30vw, 90vw', loading: 'lazy', alt: ''
+              }}
+            {%- endif -%}
+          </a>
+          <h3 class="nv-finder__name">
+            <a href="{{ product.url }}">{{ block.settings.name | default: product.title | escape }}</a>
+          </h3>
+          {%- if block.settings.best_for != blank -%}
+            <p class="nv-finder__for">{{ block.settings.best_for | escape }}</p>
+          {%- endif -%}
+          <p class="nv-finder__price">
+            {{ product.price | money }}
+            {%- if product.compare_at_price > product.price -%}
+              <s>{{ product.compare_at_price | money }}</s>
+            {%- endif -%}
+          </p>
+          {%- assign features = block.settings.features | newline_to_br | split: '<br />' -%}
+          <ul class="nv-finder__features" role="list">
+            {%- for feature in features -%}
+              {%- assign feature_text = feature | strip -%}
+              {%- if feature_text != blank -%}
+                <li>
+                  {% render 'nv-icon', name: 'check', size: 18 %}
+                  <span>{{ feature_text | escape }}</span>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+          <a
+            class="nv-btn {% if block.settings.highlight %}nv-btn--primary{% else %}nv-btn--outline{% endif %} nv-finder__cta"
+            href="{{ product.url }}"
+          >
+            {{- section.settings.button_label | escape -}}
+            {% render 'nv-icon', name: 'arrow', size: 18 %}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% stylesheet %}
+  .nv-finder__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .nv-finder__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 28px;
+    border-radius: 22px;
+    background: var(--nv-white);
+    border: 1px solid var(--nv-line);
+    box-shadow: var(--nv-shadow);
+    transition: transform 0.5s var(--nv-ease), box-shadow 0.5s var(--nv-ease), border-color 0.5s var(--nv-ease);
+  }
+
+  .nv-finder__card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--nv-shadow-hover);
+  }
+
+  .nv-finder__card--hot {
+    border: 2px solid var(--nv-blue);
+    box-shadow: 0 30px 60px -24px rgb(var(--nv-blue-rgb) / 0.45);
+  }
+
+  .nv-finder__flag {
+    position: absolute;
+    inset-block-start: -14px;
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+    box-shadow: var(--nv-glow);
+    white-space: nowrap;
+  }
+
+  .nv-finder__level {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--nv-blue);
+  }
+
+  .nv-finder__media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    margin: 16px 0 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--nv-surface);
+  }
+
+  .nv-finder__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.8s var(--nv-ease);
+  }
+
+  .nv-finder__card:hover .nv-finder__media img {
+    transform: scale(1.05);
+  }
+
+  .nv-finder__name {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: 1.35rem;
+    line-height: 1.15;
+  }
+
+  .nv-finder__name a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .nv-finder__for {
+    margin: 8px 0 0;
+    color: var(--nv-muted);
+    font-size: 0.95rem;
+  }
+
+  .nv-finder__price {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 16px 0 0;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: 1.6rem;
+  }
+
+  .nv-finder__price s {
+    font-size: 1rem;
+    color: var(--nv-muted);
+    font-weight: 400;
+  }
+
+  .nv-finder__features {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    margin: 20px 0 24px;
+    padding: 20px 0 0;
+    border-top: 1px solid var(--nv-line);
+    font-size: 0.95rem;
+  }
+
+  .nv-finder__features li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .nv-finder__features .nv-icon {
+    flex: none;
+    margin-top: 2px;
+    color: var(--nv-blue);
+  }
+
+  .nv-finder__cta {
+    margin-top: auto;
+    width: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo product finder",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "OBD2 scanner guide" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Find the right scanner" },
+    { "type": "text", "id": "text", "label": "Text" },
+    { "type": "text", "id": "highlight_label", "label": "Highlight label", "default": "Most popular" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "View details" }
+  ],
+  "blocks": [
+    {
+      "type": "pick",
+      "name": "Pick",
+      "limit": 4,
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "level", "label": "Level", "default": "Everyday" },
+        { "type": "text", "id": "name", "label": "Display name" },
+        { "type": "text", "id": "best_for", "label": "Best for" },
+        { "type": "textarea", "id": "features", "label": "Features (one per line)" },
+        { "type": "checkbox", "id": "highlight", "label": "Highlight", "default": false }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo product finder" }]
+}
+{% endschema %}

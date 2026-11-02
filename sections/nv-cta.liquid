@@ -1,0 +1,156 @@
+{% comment %}
+  Section contract.
+  Closing call-to-action banner on a dark glowing card: eyebrow, heading, text and two buttons.
+  Also used as a compact page header on content pages (style "header").
+  @example
+  <!-- Add near the end of the homepage, or at the top of About/FAQ pages with style "header". -->
+{% endcomment %}
+{%- assign cta_heading = section.settings.heading | default: page.title -%}
+<section class="nv-cta nv-cta--{{ section.settings.style }}" aria-labelledby="NvCtaTitle-{{ section.id }}">
+  <div class="nv-container">
+    <div class="nv-cta__card" data-nv-reveal>
+      <div class="nv-cta__glow" aria-hidden="true"></div>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      {%- if section.settings.style == 'header' -%}
+        <h1 id="NvCtaTitle-{{ section.id }}" class="nv-cta__title">{{ cta_heading | escape }}</h1>
+      {%- else -%}
+        <h2 id="NvCtaTitle-{{ section.id }}" class="nv-cta__title">{{ cta_heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <div class="nv-lede nv-cta__text">{{ section.settings.text }}</div>
+      {%- endif -%}
+      {%- if section.settings.button_label != blank or section.settings.button2_label != blank -%}
+        <div class="nv-cta__actions">
+          {%- if section.settings.button_label != blank -%}
+            <a class="nv-btn nv-btn--primary" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_label | escape -}}
+              {% render 'nv-icon', name: 'arrow', size: 18 %}
+            </a>
+          {%- endif -%}
+          {%- if section.settings.button2_label != blank -%}
+            <a class="nv-btn nv-btn--ghost" href="{{ section.settings.button2_link | default: '/pages/contact' }}">
+              {{- section.settings.button2_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .nv-cta {
+    padding-block: clamp(40px, 6vw, 96px);
+  }
+
+  .nv-cta--header {
+    padding-block: 24px clamp(24px, 4vw, 48px);
+  }
+
+  .nv-cta__card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: clamp(40px, 7vw, 96px) clamp(24px, 6vw, 88px);
+    border-radius: 28px;
+    color: var(--nv-white);
+    text-align: center;
+    background: linear-gradient(160deg, var(--nv-steel) 0%, var(--nv-ink) 70%);
+  }
+
+  .nv-cta--header .nv-cta__card {
+    padding-block: clamp(40px, 6vw, 80px);
+  }
+
+  .nv-cta__glow {
+    position: absolute;
+    inset: -40% -10% auto;
+    height: 120%;
+    z-index: -1;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(var(--nv-blue-rgb) / 0.45) 0%, transparent 70%);
+    animation: nv-cta-pulse 8s ease-in-out infinite;
+  }
+
+  .nv-cta__card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(70% 70% at 50% 50%, #000 0%, transparent 80%);
+  }
+
+  .nv-cta .nv-eyebrow {
+    color: var(--nv-blue-bright);
+  }
+
+  .nv-cta__title {
+    margin: 0 auto;
+    max-width: 20ch;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .nv-cta__text {
+    margin-inline: auto;
+    color: rgb(255 255 255 / 0.72);
+  }
+
+  .nv-cta__text p {
+    margin: 0;
+  }
+
+  .nv-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 32px;
+  }
+
+  @keyframes nv-cta-pulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-cta__glow {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo banner",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "default": "cta",
+      "options": [
+        { "value": "cta", "label": "Call to action" },
+        { "value": "header", "label": "Page header" }
+      ]
+    },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading (blank uses the page title)", "default": "Ready for a smarter drive?" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "text", "id": "button_label", "label": "Primary button label", "default": "Shop all products" },
+    { "type": "url", "id": "button_link", "label": "Primary button link" },
+    { "type": "text", "id": "button2_label", "label": "Secondary button label" },
+    { "type": "url", "id": "button2_link", "label": "Secondary button link" }
+  ],
+  "presets": [{ "name": "Nuvravo banner" }]
+}
+{% endschema %}

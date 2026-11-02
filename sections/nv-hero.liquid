@@ -1,0 +1,461 @@
+{% comment %}
+  Section contract.
+  Full-bleed dark hero: background image with brand glow, headline, two calls to action,
+  trust chips, a floating collage of products from a chosen collection, and animated stats.
+  @example
+  <!-- Add "Nuvravo hero" as the first homepage section; pick a collection for the product collage. -->
+{% endcomment %}
+{%- liquid
+  assign chips = section.blocks | where: 'type', 'chip'
+  assign stats = section.blocks | where: 'type', 'stat'
+  assign featured = section.settings.collection
+-%}
+<section class="nv-hero nv-section nv-section--dark" aria-labelledby="NvHeroTitle-{{ section.id }}">
+  {%- if section.settings.image != blank -%}
+    {%- comment -%} Preload the LCP background so it starts downloading before CSS/JS. {%- endcomment -%}
+    {%- capture hero_srcset -%}
+      {{- section.settings.image | image_url: width: 750 }} 750w, {{ section.settings.image | image_url: width: 1100 }} 1100w, {{ section.settings.image | image_url: width: 1500 }} 1500w, {{ section.settings.image | image_url: width: 2000 }} 2000w
+    {%- endcapture -%}
+    {{ section.settings.image | image_url: width: 1500 | preload_tag: as: 'image', fetchpriority: 'high', imagesrcset: hero_srcset, imagesizes: '100vw' }}
+    <div class="nv-hero__media" aria-hidden="true">
+      {{
+        section.settings.image
+        | image_url: width: 2000
+        | image_tag:
+          widths: '750, 1100, 1500, 2000',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: '',
+          class: 'nv-hero__img'
+      }}
+    </div>
+  {%- endif -%}
+  <div class="nv-hero__veil" aria-hidden="true"></div>
+  <div class="nv-hero__grid-lines" aria-hidden="true"></div>
+
+  <div class="nv-container nv-hero__inner">
+    <div class="nv-hero__copy">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h1 id="NvHeroTitle-{{ section.id }}" class="nv-hero__title">
+        {{ section.settings.heading | escape }}
+        {%- if section.settings.heading_accent != blank %}
+          <span class="nv-hero__accent">{{ section.settings.heading_accent | escape }}</span>
+        {%- endif -%}
+      </h1>
+      {%- if section.settings.text != blank -%}
+        <div class="nv-lede nv-hero__text">{{ section.settings.text }}</div>
+      {%- endif -%}
+
+      <div class="nv-hero__actions">
+        {%- if section.settings.button_label != blank -%}
+          <a class="nv-btn nv-btn--primary" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+            {{- section.settings.button_label | escape -}}
+            {% render 'nv-icon', name: 'arrow', size: 18 %}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.button2_label != blank -%}
+          <a class="nv-btn nv-btn--ghost" href="{{ section.settings.button2_link | default: routes.collections_url }}">
+            {{- section.settings.button2_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- if chips.size > 0 -%}
+        <ul class="nv-hero__chips" role="list">
+          {%- for block in chips -%}
+            <li class="nv-hero__chip" {{ block.shopify_attributes }}>
+              {% render 'nv-icon', name: block.settings.icon, size: 18 %}
+              <span>{{ block.settings.text | escape }}</span>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+
+    {%- if featured != blank and featured.products.size > 0 -%}
+      <div class="nv-hero__collage">
+        {%- for product in featured.products limit: 3 -%}
+          {%- capture nv_title -%}{% render 'nv-copy', product: product, field: 'title' %}{%- endcapture -%}
+          <a
+            class="nv-hero__card nv-hero__card--{{ forloop.index }}"
+            href="{{ product.url }}"
+            aria-label="{{ nv_title }}"
+          >
+            <span class="nv-hero__card-media">
+              {%- if product.featured_image -%}
+                {{
+                  product.featured_image
+                  | image_url: width: 480
+                  | image_tag: widths: '240, 360, 480', sizes: '(min-width: 990px) 240px, 45vw', loading: 'lazy', fetchpriority: 'low', alt: ''
+                }}
+              {%- endif -%}
+            </span>
+            <span class="nv-hero__card-meta">
+              <span class="nv-hero__card-title">{{ nv_title | truncate: 38 }}</span>
+              <span class="nv-hero__card-price">{{ product.price | money }}</span>
+            </span>
+          </a>
+        {%- endfor -%}
+        <div class="nv-hero__badge" aria-hidden="true">
+          {% render 'nv-icon', name: 'sparkle', size: 18 %}
+          <span>{{ section.settings.badge_text | escape }}</span>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if stats.size > 0 -%}
+    <div class="nv-container">
+      <dl class="nv-hero__stats">
+        {%- for block in stats -%}
+          <div class="nv-hero__stat" {{ block.shopify_attributes }}>
+            <dt class="nv-hero__stat-label">{{ block.settings.label | escape }}</dt>
+            <dd class="nv-hero__stat-value">
+              <span data-nv-count="{{ block.settings.number }}">{{ block.settings.number }}</span>
+              {{- block.settings.suffix | escape -}}
+            </dd>
+          </div>
+        {%- endfor -%}
+      </dl>
+    </div>
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+  .nv-hero {
+    min-height: min(100svh, 980px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: calc(var(--header-height, 72px) + clamp(40px, 6vw, 88px)) clamp(40px, 5vw, 72px);
+    isolation: isolate;
+  }
+
+  .nv-hero__media,
+  .nv-hero__veil,
+  .nv-hero__grid-lines {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .nv-hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.06);
+    animation: nv-hero-zoom 18s var(--nv-ease) forwards;
+  }
+
+  .nv-hero__veil {
+    background: radial-gradient(60% 60% at 82% 28%, rgb(var(--nv-blue-rgb) / 0.28) 0%, transparent 60%),
+      linear-gradient(90deg, rgb(10 15 28 / 0.92) 0%, rgb(10 15 28 / 0.6) 42%, rgb(10 15 28 / 0.12) 100%),
+      linear-gradient(0deg, rgb(10 15 28 / 0.92) 0%, transparent 34%);
+  }
+
+  .nv-hero__grid-lines {
+    background-image: linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(80% 60% at 70% 40%, #000 0%, transparent 75%);
+  }
+
+  .nv-hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: clamp(32px, 5vw, 80px);
+  }
+
+  .nv-hero__title {
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(2.6rem, 1.4rem + 4.6vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .nv-hero__accent {
+    display: block;
+    background: var(--nv-chrome);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .nv-hero__text p {
+    margin: 0;
+  }
+
+  .nv-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 32px;
+  }
+
+  .nv-hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    list-style: none;
+    padding: 0;
+    margin: 32px 0 0;
+    color: rgb(255 255 255 / 0.78);
+    font-size: 0.9rem;
+  }
+
+  .nv-hero__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nv-hero__chip .nv-icon {
+    color: var(--nv-blue-bright);
+  }
+
+  .nv-hero__collage {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    max-width: 560px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .nv-hero__card {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 46%;
+    padding: 10px;
+    border-radius: 20px;
+    color: var(--nv-white);
+    text-decoration: none;
+    background: rgb(255 255 255 / 0.08);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.6);
+    transition: transform 0.6s var(--nv-ease), border-color 0.6s var(--nv-ease);
+    animation: nv-float 7s ease-in-out infinite;
+  }
+
+  .nv-hero__card:hover {
+    border-color: rgb(var(--nv-blue-rgb) / 0.9);
+    transform: translateY(-6px) scale(1.02);
+  }
+
+  .nv-hero__card--1 { inset-block-start: 2%; inset-inline-start: 0; z-index: 2; rotate: -4deg; }
+  .nv-hero__card--2 { inset-block-start: 16%; inset-inline-end: 0; z-index: 3; rotate: 3deg; animation-delay: -2.3s; }
+  .nv-hero__card--3 { inset-block-end: -4%; inset-inline-start: 22%; z-index: 4; rotate: -1deg; animation-delay: -4.6s; }
+
+  .nv-hero__card-media {
+    display: block;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .nv-hero__card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .nv-hero__card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 4px 2px;
+    font-size: 0.8rem;
+  }
+
+  .nv-hero__card-title {
+    color: rgb(255 255 255 / 0.85);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nv-hero__card-price {
+    font-weight: 700;
+    color: var(--nv-white);
+    white-space: nowrap;
+  }
+
+  .nv-hero__badge {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 4%;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+    box-shadow: var(--nv-glow);
+  }
+
+  .nv-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    margin: clamp(40px, 6vw, 72px) 0 0;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  .nv-hero__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 6px;
+    padding: 24px 24px 0 0;
+  }
+
+  .nv-hero__stat + .nv-hero__stat {
+    padding-inline-start: 24px;
+    border-inline-start: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  .nv-hero__stat-value {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(1.8rem, 1.2rem + 1.8vw, 2.75rem);
+    line-height: 1;
+    color: var(--nv-white);
+  }
+
+  .nv-hero__stat-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  /* Entrance uses transform only, so text is visible (and counts for LCP) from the first paint. */
+  .nv-hero__copy > *,
+  .nv-hero__collage,
+  .nv-hero__stats {
+    animation: nv-hero-rise 0.9s var(--nv-ease) both;
+  }
+
+  .nv-hero__copy > :nth-child(2) { animation-delay: 0.06s; }
+  .nv-hero__copy > :nth-child(3) { animation-delay: 0.12s; }
+  .nv-hero__copy > :nth-child(4) { animation-delay: 0.18s; }
+  .nv-hero__copy > :nth-child(5) { animation-delay: 0.24s; }
+
+  @keyframes nv-hero-rise {
+    from { transform: translateY(18px); }
+    to { transform: none; }
+  }
+
+  @keyframes nv-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -12px; }
+  }
+
+  @keyframes nv-hero-zoom {
+    to { transform: scale(1); }
+  }
+
+  @media (max-width: 989px) {
+    .nv-hero__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .nv-hero__collage {
+      max-width: 420px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .nv-hero__stat,
+    .nv-hero__stat + .nv-hero__stat {
+      padding: 18px 0 0;
+      border-inline-start: 0;
+    }
+
+    .nv-hero__stats {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nv-hero__copy > *,
+    .nv-hero__collage,
+    .nv-hero__stats,
+    .nv-hero__img,
+    .nv-hero__card {
+      animation: none;
+      transform: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo hero",
+  "tag": "div",
+  "class": "nv-hero-section",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Background image" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Smart car accessories" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Drive a smarter," },
+    { "type": "text", "id": "heading_accent", "label": "Heading accent line", "default": "drive Nuvravo." },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Diagnostic tools, premium interior upgrades and detailing gear, tested and selected for drivers who care about their car.</p>" },
+    { "type": "text", "id": "button_label", "label": "Primary button label", "default": "Shop best sellers" },
+    { "type": "url", "id": "button_link", "label": "Primary button link" },
+    { "type": "text", "id": "button2_label", "label": "Secondary button label", "default": "Browse categories" },
+    { "type": "url", "id": "button2_link", "label": "Secondary button link" },
+    { "type": "collection", "id": "collection", "label": "Collage collection" },
+    { "type": "text", "id": "badge_text", "label": "Collage badge", "default": "New season picks" }
+  ],
+  "blocks": [
+    {
+      "type": "chip",
+      "name": "Trust chip",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "check",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "lock", "label": "Lock" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "headset", "label": "Support" },
+            { "value": "globe", "label": "Globe" },
+            { "value": "refresh", "label": "Returns" }
+          ]
+        },
+        { "type": "text", "id": "text", "label": "Text", "default": "Secure checkout" }
+      ]
+    },
+    {
+      "type": "stat",
+      "name": "Stat",
+      "limit": 4,
+      "settings": [
+        { "type": "text", "id": "number", "label": "Number", "default": "30" },
+        { "type": "text", "id": "suffix", "label": "Suffix", "default": "+" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Countries we ship to" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo hero" }]
+}
+{% endschema %}

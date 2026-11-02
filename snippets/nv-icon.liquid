@@ -1,0 +1,62 @@
+{%- doc -%}
+  Renders a decorative line icon used by the Nuvravo sections.
+
+  @param {string} name - Icon name: truck, shield, refresh, headset, lock, bolt, check, arrow, globe, gauge, battery, sparkle, star, chip, mail, card
+  @param {number} [size] - Pixel size, defaults to 24
+
+  @example
+  {% render 'nv-icon', name: 'truck', size: 28 %}
+{%- enddoc -%}
+{%- liquid
+  assign size = size | default: 24
+-%}
+<svg
+  class="nv-icon nv-icon--{{ name }}"
+  width="{{ size }}"
+  height="{{ size }}"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {%- case name -%}
+    {%- when 'truck' -%}
+      <path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>
+    {%- when 'shield' -%}
+      <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>
+    {%- when 'refresh' -%}
+      <path d="M20 11a8 8 0 0 0-14.5-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16"/><path d="M20 20v-4h-4"/>
+    {%- when 'headset' -%}
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/><path d="M19 20c0 1-1.5 2-4 2h-2"/>
+    {%- when 'lock' -%}
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>
+    {%- when 'bolt' -%}
+      <path d="M13 2L4 14h7l-1 8 9-12h-7z"/>
+    {%- when 'check' -%}
+      <path d="M5 12.5l4.5 4.5L19 7.5"/>
+    {%- when 'arrow' -%}
+      <path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>
+    {%- when 'globe' -%}
+      <circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3z"/>
+    {%- when 'gauge' -%}
+      <path d="M4.5 18a9 9 0 1 1 15 0"/><path d="M12 13l4-5"/><circle cx="12" cy="13.5" r="1.4"/>
+    {%- when 'battery' -%}
+      <rect x="2.5" y="7" width="17" height="10" rx="2"/><path d="M21.5 10.5v3"/><path d="M11 9l-2 3h4l-2 3"/>
+    {%- when 'sparkle' -%}
+      <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>
+    {%- when 'star' -%}
+      <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>
+    {%- when 'chip' -%}
+      <rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/>
+    {%- when 'mail' -%}
+      <rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5L12 13l8.5-6.5"/>
+    {%- when 'card' -%}
+      <rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 15h4"/>
+    {%- else -%}
+      <circle cx="12" cy="12" r="8"/>
+  {%- endcase -%}
+</svg>

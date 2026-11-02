@@ -1,0 +1,211 @@
+{% comment %}
+  Section contract.
+  "Why shop with us" band: heading plus value cards (icon, title, text) and an optional row of
+  animated stats. Dark by default to break up light product sections.
+  @example
+  <!-- Add "Value" blocks for each promise and "Stat" blocks for the numbers row. -->
+{% endcomment %}
+{%- liquid
+  assign values = section.blocks | where: 'type', 'value'
+  assign stats = section.blocks | where: 'type', 'stat'
+-%}
+<section
+  class="nv-section nv-values{% if section.settings.style == 'dark' %} nv-section--dark{% else %} nv-section--surface{% endif %}"
+  aria-labelledby="NvValuesTitle-{{ section.id }}"
+>
+  <div class="nv-container">
+    <div class="nv-head nv-head--center" data-nv-reveal>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="nv-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="NvValuesTitle-{{ section.id }}" class="nv-title">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="nv-lede">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <ul class="nv-values__grid" role="list">
+      {%- for block in values -%}
+        <li class="nv-values__card" data-nv-reveal style="--nv-delay: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <span class="nv-values__icon">{% render 'nv-icon', name: block.settings.icon, size: 26 %}</span>
+          <h3 class="nv-values__title">{{ block.settings.title | escape }}</h3>
+          <p class="nv-values__text">{{ block.settings.text | escape }}</p>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if stats.size > 0 -%}
+      <dl class="nv-values__stats" data-nv-reveal>
+        {%- for block in stats -%}
+          <div class="nv-values__stat" {{ block.shopify_attributes }}>
+            <dt>{{ block.settings.label | escape }}</dt>
+            <dd>
+              <span data-nv-count="{{ block.settings.number }}">{{ block.settings.number }}</span>
+              {{- block.settings.suffix | escape -}}
+            </dd>
+          </div>
+        {%- endfor -%}
+      </dl>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .nv-values__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nv-values__card {
+    padding: 30px 26px;
+    border-radius: 20px;
+    background: var(--nv-white);
+    border: 1px solid var(--nv-line);
+    transition: transform 0.5s var(--nv-ease), border-color 0.5s var(--nv-ease), background-color 0.5s var(--nv-ease);
+  }
+
+  .nv-section--dark .nv-values__card {
+    background: rgb(255 255 255 / 0.04);
+    border-color: rgb(255 255 255 / 0.1);
+  }
+
+  .nv-values__card:hover {
+    transform: translateY(-6px);
+    border-color: rgb(var(--nv-blue-rgb) / 0.7);
+  }
+
+  .nv-values__icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    color: var(--nv-white);
+    background: var(--nv-accent-grad);
+    box-shadow: var(--nv-glow);
+  }
+
+  .nv-values__title {
+    margin: 22px 0 8px;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: 1.25rem;
+  }
+
+  .nv-values__text {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--nv-muted);
+  }
+
+  .nv-section--dark .nv-values__text {
+    color: rgb(255 255 255 / 0.68);
+  }
+
+  .nv-values__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 24px;
+    margin: clamp(40px, 6vw, 72px) 0 0;
+    padding-top: clamp(28px, 4vw, 48px);
+    border-top: 1px solid var(--nv-line);
+    text-align: center;
+  }
+
+  .nv-section--dark .nv-values__stats {
+    border-color: rgb(255 255 255 / 0.12);
+  }
+
+  .nv-values__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .nv-values__stat dd {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(2.2rem, 1.5rem + 2vw, 3.4rem);
+    line-height: 1;
+    background: linear-gradient(180deg, currentColor 30%, var(--nv-blue-bright) 140%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .nv-values__stat dt {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--nv-muted);
+  }
+
+  .nv-section--dark .nv-values__stat dt {
+    color: rgb(255 255 255 / 0.6);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Nuvravo values",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "default": "dark",
+      "options": [
+        { "value": "dark", "label": "Dark" },
+        { "value": "light", "label": "Light" }
+      ]
+    },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Why Nuvravo" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Smarter gear. Simpler shopping." },
+    { "type": "text", "id": "text", "label": "Text" }
+  ],
+  "blocks": [
+    {
+      "type": "value",
+      "name": "Value",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "shield",
+          "options": [
+            { "value": "shield", "label": "Shield" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "refresh", "label": "Returns" },
+            { "value": "headset", "label": "Support" },
+            { "value": "lock", "label": "Lock" },
+            { "value": "gauge", "label": "Gauge" },
+            { "value": "chip", "label": "Chip" },
+            { "value": "star", "label": "Star" },
+            { "value": "globe", "label": "Globe" }
+          ]
+        },
+        { "type": "text", "id": "title", "label": "Title", "default": "Quality checked" },
+        { "type": "textarea", "id": "text", "label": "Text" }
+      ]
+    },
+    {
+      "type": "stat",
+      "name": "Stat",
+      "limit": 4,
+      "settings": [
+        { "type": "text", "id": "number", "label": "Number", "default": "30" },
+        { "type": "text", "id": "suffix", "label": "Suffix", "default": "+" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Countries" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Nuvravo values" }]
+}
+{% endschema %}
